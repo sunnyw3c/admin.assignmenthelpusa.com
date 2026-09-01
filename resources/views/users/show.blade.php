@@ -105,7 +105,7 @@
         </div>
 
         {{-- Change role (admin only) --}}
-        @if(session('admin_user.role') === 'admin')
+        @if(auth()->user()->role === 'admin')
         <div class="bg-white rounded-2xl border border-gray-200 p-5">
             <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Change Role</h2>
             <form method="POST" action="{{ route('users.role', $user['id'] ?? 0) }}" class="space-y-3">

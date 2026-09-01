@@ -10,7 +10,7 @@ class DashboardController extends Controller
     {
         $api   = new AdminApiService();
         $stats = $api->getStats();
-        $role  = session('admin_user.role', 'admin');
+        $role  = auth()->user()->role;
 
         return view('dashboard.index', compact('stats', 'role'));
     }

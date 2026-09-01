@@ -21,7 +21,7 @@
         <div class="flex-1 overflow-y-auto p-5 space-y-4" id="msg-scroll">
             @forelse($thread['messages'] ?? [] as $msg)
             @php
-                $isMe = ($msg['sender']['name'] ?? '') === session('admin_user.name');
+                $isMe = ($msg['sender']['name'] ?? '') === auth()->user()->name;
             @endphp
             <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }} gap-2.5">
                 @if(!$isMe)

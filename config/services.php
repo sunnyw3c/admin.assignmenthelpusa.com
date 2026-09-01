@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'main_api' => [
+        'url'   => env('MAIN_API_URL', 'http://localhost:8000'),
+        'token' => env('MAIN_API_TOKEN'),
+    ],
+
 ];

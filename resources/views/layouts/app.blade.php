@@ -41,7 +41,7 @@
         </div>
 
         {{-- Nav --}}
-        @php $role = session('admin_user.role', 'admin'); @endphp
+        @php $role = auth()->user()->role; @endphp
         <nav class="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
 
             {{-- Dashboard --}}
@@ -141,11 +141,11 @@
         <div class="p-3 border-t border-white/5">
             <div class="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white/5 transition group">
                 <div class="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                    {{ strtoupper(substr(session('admin_user.name', 'A'), 0, 1)) }}
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-xs text-white/80 font-medium truncate">{{ session('admin_user.name') }}</p>
-                    <p class="text-[10px] text-white/30 capitalize">{{ session('admin_user.role') }}</p>
+                    <p class="text-xs text-white/80 font-medium truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-[10px] text-white/30 capitalize">{{ auth()->user()->role }}</p>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

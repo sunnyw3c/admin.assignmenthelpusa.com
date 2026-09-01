@@ -24,13 +24,18 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
+        $email = env('SEED_ADMIN_EMAIL', 'support@assignmenthelpusa.com');
+
         User::updateOrCreate(
-            ['email' => env('SEED_ADMIN_EMAIL', 'support@assignmenthelpusa.com')],
+            ['email' => $email],
             [
-                'name'              => 'Support',
+                'name'              => env('SEED_ADMIN_NAME', 'Support'),
+                'role'              => 'admin',
                 'password'          => Hash::make($password),
                 'email_verified_at' => now(),
             ]
         );
+
+        $this->command->info("Admin user seeded: {$email}");
     }
 }

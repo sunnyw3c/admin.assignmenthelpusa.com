@@ -149,7 +149,7 @@
         </div>
 
         {{-- Assign Writer --}}
-        @if(in_array(session('admin_user.role'), ['admin', 'manager']))
+        @if(in_array(auth()->user()->role, ['admin', 'manager']))
         <div class="bg-white rounded-2xl border border-gray-200 p-5">
             <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Assign Writer</h2>
             @if(isset($order['writer']))

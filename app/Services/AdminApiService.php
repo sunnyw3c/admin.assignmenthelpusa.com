@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
 
 class AdminApiService
 {
@@ -11,38 +10,16 @@ class AdminApiService
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('app.main_api_url'), '/') . '/api/admin';
+        $this->baseUrl = rtrim((string) config('services.main_api.url'), '/') . '/api/admin';
     }
 
     private function client()
     {
         return Http::baseUrl($this->baseUrl)
-            ->withToken(Session::get('admin_token', ''))
+            ->withToken((string) config('services.main_api.token'))
             ->withoutVerifying()
             ->acceptJson()
             ->timeout(15);
-    }
-
-    // Auth
-    public function login(string $email, string $password): array
-    {
-        $response = Http::baseUrl($this->baseUrl)
-            ->withoutVerifying()
-            ->acceptJson()
-            ->post('/login', compact('email', 'password'));
-
-        return ['status' => $response->status(), 'data' => $response->json()];
-    }
-
-    public function logout(): void
-    {
-        $this->client()->post('/logout');
-    }
-
-    public function me(): ?array
-    {
-        $response = $this->client()->get('/me');
-        return $response->ok() ? $response->json() : null;
     }
 
     // Stats

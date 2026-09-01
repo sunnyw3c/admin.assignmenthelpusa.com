@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @section('title', 'Home')
-@section('heading', 'Good ' . (date('H') < 12 ? 'morning' : (date('H') < 18 ? 'afternoon' : 'evening')) . ', ' . (session('admin_user.name') ? explode(' ', session('admin_user.name'))[0] : 'there') . ' 👋')
+@section('heading', 'Good ' . (date('H') < 12 ? 'morning' : (date('H') < 18 ? 'afternoon' : 'evening')) . ', ' . (auth()->user()->name ? explode(' ', auth()->user()->name)[0] : 'there') . ' 👋')
 
 @section('content')
-@php $role = session('admin_user.role', 'admin'); @endphp
+@php $role = auth()->user()->role; @endphp
 
 {{-- Stats grid --}}
 <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
