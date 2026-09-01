@@ -39,6 +39,32 @@
             z-index: 0;
         }
 
+        /* Mouse-tracking glow: the same grid again in lime, masked to a circle
+           that follows the cursor, so only the lines near the pointer light up.
+           Hover-capable pointers only — there is no cursor to follow on touch. */
+        .grid-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .35s;
+            background-image:
+                linear-gradient(rgba(163, 230, 53, .18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(163, 230, 53, .18) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: radial-gradient(350px circle at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
+            -webkit-mask-image: radial-gradient(350px circle at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
+        }
+
+        @media (hover: hover) {
+            body:hover .grid-glow { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .grid-glow { transition: none; }
+        }
+
         .auth-card {
             background: rgba(24, 24, 27, .85) !important;
             border: 1px solid rgba(255, 255, 255, .07) !important;
@@ -63,6 +89,8 @@
     </style>
 </head>
 <body class="min-h-screen antialiased">
+
+<div class="grid-glow" id="gridGlow"></div>
 
 <div class="relative z-10 flex min-h-screen flex-col items-center justify-center p-6">
 
@@ -131,5 +159,30 @@
     <p class="mt-7 text-[11px] text-zinc-700">&copy; {{ date('Y') }} Assignment Help USA</p>
 </div>
 
+<script>
+    (function () {
+        var glow = document.getElementById('gridGlow');
+        if (!glow || !matchMedia('(hover: hover)').matches) return;
+
+        var x = 0, y = 0, queued = false;
+
+        // Paint on the next frame rather than on every mousemove, so a fast
+        // cursor cannot outrun the compositor.
+        function paint() {
+            queued = false;
+            glow.style.setProperty('--gx', x + 'px');
+            glow.style.setProperty('--gy', y + 'px');
+        }
+
+        document.addEventListener('mousemove', function (e) {
+            x = e.clientX;
+            y = e.clientY;
+            if (!queued) {
+                queued = true;
+                requestAnimationFrame(paint);
+            }
+        });
+    })();
+</script>
 </body>
 </html>
