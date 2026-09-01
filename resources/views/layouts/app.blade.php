@@ -64,13 +64,14 @@
                dark:border-zinc-800 dark:bg-zinc-900">
 
         {{-- Brand --}}
-        <div class="flex items-center gap-3 px-5 py-5">
-            <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-3">
-                <img src="{{ asset('images/logo-mark.svg') }}" alt="Assignment Help USA" class="size-8 shrink-0">
-                <span class="sidebar-brand-text min-w-0">
-                    <span class="block truncate text-sm font-bold leading-tight text-zinc-900 dark:text-zinc-100">Admin Panel</span>
-                    <span class="block truncate text-[11px] leading-tight text-zinc-500">Assignment Help USA</span>
-                </span>
+        <div class="sidebar-brand flex items-center gap-3 px-5 py-5">
+            {{-- The wordmark is the main site's; the mark alone stands in for it
+                 once the sidebar is collapsed and there is no room for text. --}}
+            <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center">
+                <img src="{{ asset('images/logo-320w.webp') }}" alt="Assignment Help USA"
+                     width="320" height="60" class="sidebar-brand-full h-8 w-auto" decoding="async">
+                <img src="{{ asset('images/logo-mark.svg') }}" alt="Assignment Help USA"
+                     class="sidebar-brand-mark size-8 shrink-0">
             </a>
 
             <button id="sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar"
@@ -149,18 +150,18 @@
             @endif
 
             @if (session('error'))
-                <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-3.5 dark:border-red-900/50 dark:bg-red-950/30">
+                <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 dark:border-red-900/50 dark:bg-red-950/30">
                     <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-red-500" />
-                    <p class="text-sm text-red-700 dark:text-red-400 dark:text-red-300">{{ session('error') }}</p>
+                    <p class="text-sm text-red-700 dark:text-red-300">{{ session('error') }}</p>
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-3.5 dark:border-red-900/50 dark:bg-red-950/30">
+                <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 dark:border-red-900/50 dark:bg-red-950/30">
                     <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-red-500" />
                     <div class="space-y-0.5">
                         @foreach ($errors->all() as $error)
-                            <p class="text-sm text-red-700 dark:text-red-400 dark:text-red-300">{{ $error }}</p>
+                            <p class="text-sm text-red-700 dark:text-red-300">{{ $error }}</p>
                         @endforeach
                     </div>
                 </div>

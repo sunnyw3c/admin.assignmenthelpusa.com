@@ -128,6 +128,18 @@
     width: 4.5rem;
 }
 
+.sidebar-brand-mark {
+    display: none;
+}
+
+.sidebar-collapsed .sidebar-brand-mark {
+    display: block;
+}
+
+.sidebar-collapsed .sidebar-brand-full {
+    display: none;
+}
+
 .sidebar-collapsed .sidebar-label,
 .sidebar-collapsed .sidebar-brand-text,
 .sidebar-collapsed .sidebar-section-label,
@@ -143,4 +155,23 @@
 
 .sidebar-collapsed #sidebar-toggle svg {
     transform: rotate(180deg);
+}
+
+/* Collapsed, the sidebar is 4.5rem wide and px-5 would leave the brand row no
+   content box at all — preflight's img{max-width:100%} would then size the
+   mark to zero. Stack the mark over the toggle and tighten the padding. */
+.sidebar-collapsed .sidebar-brand {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.sidebar-collapsed .sidebar-brand > a {
+    width: 100%;
+    justify-content: center;
+}
+
+.sidebar-collapsed #sidebar-toggle {
+    margin-left: 0;
 }

@@ -56,16 +56,16 @@
             All Orders
         </a>
         <a href="{{ route('orders.index', ['status' => 'pending']) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-sm text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/20 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-sm text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-100 dark:hover:bg-amber-500/20 transition">
             ⏳ Pending
         </a>
         <a href="{{ route('messages.index', ['unread' => 1]) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-sm text-red-700 dark:text-red-400 font-medium hover:bg-red-100 dark:bg-red-500/15 dark:hover:bg-red-500/20 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-sm text-red-700 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-500/20 transition">
             💬 Unread
         </a>
         @if(in_array($role, ['admin', 'manager']))
         <a href="{{ route('orders.index', ['status' => 'in_progress']) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-sm text-blue-700 dark:text-blue-400 font-medium hover:bg-blue-100 dark:bg-blue-500/15 dark:hover:bg-blue-500/20 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-sm text-blue-700 dark:text-blue-400 font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition">
             🔄 In Progress
         </a>
         <a href="{{ route('writers.index') }}"

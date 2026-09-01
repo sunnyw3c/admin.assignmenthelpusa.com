@@ -112,7 +112,7 @@
                     @csrf
                     <button type="submit" class="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition
                         {{ $section['is_active']
-                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/20'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
                             : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700' }}">
                         <span class="w-1.5 h-1.5 rounded-full {{ $section['is_active'] ? 'bg-emerald-500' : 'bg-zinc-400' }}"></span>
                         {{ $section['is_active'] ? 'Live' : 'Hidden' }}
@@ -129,7 +129,7 @@
                           onsubmit="return confirm('Delete this section?')">
                         @csrf
                         <input type="hidden" name="page" value="{{ $page }}">
-                        <button type="submit" class="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:bg-red-500/10 dark:hover:bg-red-500/15 rounded-lg transition">
+                        <button type="submit" class="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/15 rounded-lg transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </form>
