@@ -50,7 +50,7 @@
 {{-- Table --}}
 <div class="card overflow-hidden">
     <div class="table-scroll">
-        <table>
+        <table class="min-w-[64rem]">
             <thead>
                 <tr class="border-b border-zinc-100 dark:border-zinc-800">
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Order</th>
@@ -67,7 +67,7 @@
                 @forelse($orders['data'] ?? [] as $order)
                 <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
                     <td class="px-5 py-3.5">
-                        <span class="font-mono text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{{ $order['order_number'] ?? '#'.($order['id'] ?? '—') }}</span>
+                        <span class="whitespace-nowrap font-mono text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{{ $order['order_number'] ?? '#'.($order['id'] ?? '—') }}</span>
                     </td>
                     <td class="px-5 py-3.5">
                         <div class="flex items-center gap-2.5">

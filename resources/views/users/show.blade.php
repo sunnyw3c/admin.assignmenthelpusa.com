@@ -54,7 +54,7 @@
                 <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Orders</h2>
             </div>
             <div class="table-scroll">
-                <table>
+                <table class="min-w-[40rem]">
                     <thead>
                         <tr class="border-b border-zinc-100 dark:border-zinc-800">
                             <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Order</th>
@@ -67,7 +67,7 @@
                     <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
                         @foreach($user['orders'] as $order)
                         <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 group transition-colors">
-                            <td class="px-5 py-3"><span class="font-mono text-xs text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">{{ $order['order_number'] ?? '#'.($order['id'] ?? '') }}</span></td>
+                            <td class="px-5 py-3"><span class="whitespace-nowrap font-mono text-xs text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">{{ $order['order_number'] ?? '#'.($order['id'] ?? '') }}</span></td>
                             <td class="px-5 py-3 text-sm text-zinc-700 dark:text-zinc-300 max-w-[200px] truncate">{{ $order['title'] ?? '—' }}</td>
                             <td class="px-5 py-3"><x-status-badge :status="$order['status'] ?? 'pending'" type="order"/></td>
                             <td class="px-5 py-3 text-right text-sm font-semibold text-zinc-700 dark:text-zinc-300">${{ number_format($order['budget'] ?? 0, 2) }}</td>

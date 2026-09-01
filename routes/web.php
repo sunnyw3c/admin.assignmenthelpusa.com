@@ -68,8 +68,3 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('/services-editor/{id}/edit', [ServiceEditorController::class, 'edit'])->name('services-editor.edit');
     Route::post('/services-editor/{id}', [ServiceEditorController::class, 'update'])->name('services-editor.update');
 });
-
-// TEMPORARY responsive-QA harness - delete before committing.
-if (app()->environment("local") && file_exists(__DIR__ . "/_qa_preview.php")) {
-    require __DIR__ . "/_qa_preview.php";
-}

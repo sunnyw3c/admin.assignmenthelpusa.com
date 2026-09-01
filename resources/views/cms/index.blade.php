@@ -42,7 +42,7 @@
     @if(count($dynamicPages) > 0)
     <div class="card overflow-hidden">
         <div class="table-scroll">
-            <table>
+            <table class="min-w-[36rem]">
                 <thead>
                     <tr class="border-b border-zinc-100 dark:border-zinc-800">
                         <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Page</th>
