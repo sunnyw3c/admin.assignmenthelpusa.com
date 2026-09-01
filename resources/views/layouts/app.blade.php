@@ -1,203 +1,169 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') — Admin</title>
+    <link rel="icon" href="{{ asset('images/logo-mark.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ asset('favicon.png') }}">
+
+    {{-- Resolve the stored theme before first paint, so a dark-mode user never
+         sees a white flash while the stylesheet loads. --}}
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                }
+                if (localStorage.getItem('sidebar') === 'collapsed') {
+                    document.documentElement.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-        [x-cloak] { display: none !important; }
-    </style>
 </head>
-<body class="h-full bg-[#f5f5f5]" x-data="{ sidebar: true }">
+<body class="min-h-screen bg-zinc-100 font-sans antialiased dark:bg-zinc-950">
 
-<div class="flex h-full overflow-hidden">
+@php $role = auth()->user()->role; @endphp
 
-    {{-- ═══════════════ SIDEBAR ═══════════════ --}}
-    <aside class="flex-shrink-0 w-[220px] bg-[#1e1f21] flex flex-col h-full">
+{{-- ══════════════ MOBILE TOP BAR ══════════════ --}}
+<div class="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 lg:hidden dark:border-zinc-800 dark:bg-zinc-900">
+    <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+        <img src="{{ asset('images/logo-mark.svg') }}" alt="" class="size-7">
+        <span class="font-bold text-zinc-900 dark:text-zinc-100">Admin</span>
+    </a>
+    <div class="flex items-center gap-1">
+        <button type="button" data-theme-toggle aria-label="Toggle dark mode"
+            class="inline-flex size-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+            <x-icon name="sun" class="hidden size-5 dark:block" />
+            <x-icon name="moon" class="size-5 dark:hidden" />
+        </button>
+        <button id="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"
+            class="inline-flex size-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+            <x-icon name="bars" class="size-5" />
+        </button>
+    </div>
+</div>
 
-        {{-- Logo --}}
-        <div class="h-14 flex items-center px-4 border-b border-white/5">
-            <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <span class="text-white font-semibold text-sm tracking-tight">Admin Panel</span>
-            </div>
-        </div>
+<div class="flex min-h-screen lg:min-h-0">
 
-        {{-- Workspace label --}}
-        <div class="px-4 pt-4 pb-1">
-            <p class="text-[10px] font-semibold text-white/30 uppercase tracking-widest">Workspace</p>
+    {{-- Backdrop for the mobile drawer. --}}
+    <div id="sidebar-backdrop" hidden class="fixed inset-0 z-40 bg-zinc-950/40 lg:hidden"></div>
+
+    {{-- ══════════════ SIDEBAR ══════════════ --}}
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 flex w-56 flex-col border-r border-zinc-200 bg-white
+               -translate-x-full transition-[transform,width] duration-200
+               lg:static lg:min-h-screen lg:translate-x-0
+               dark:border-zinc-800 dark:bg-zinc-900">
+
+        {{-- Brand --}}
+        <div class="flex items-center gap-3 px-5 py-5">
+            <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-3">
+                <img src="{{ asset('images/logo-mark.svg') }}" alt="Assignment Help USA" class="size-8 shrink-0">
+                <span class="sidebar-brand-text min-w-0">
+                    <span class="block truncate text-sm font-bold leading-tight text-zinc-900 dark:text-zinc-100">Admin Panel</span>
+                    <span class="block truncate text-[11px] leading-tight text-zinc-500">Assignment Help USA</span>
+                </span>
+            </a>
+
+            <button id="sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar"
+                class="ml-auto hidden size-7 shrink-0 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900 lg:inline-flex dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                <x-icon name="chevron-left" class="size-4 transition-transform duration-200" />
+            </button>
         </div>
 
         {{-- Nav --}}
-        @php $role = auth()->user()->role; @endphp
-        <nav class="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
+        <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-3">
+            <x-nav-item route="dashboard" icon="home" label="Home" :active="request()->routeIs('dashboard')" />
+            <x-nav-item route="orders.index" icon="clipboard" label="Orders" :active="request()->routeIs('orders.*')" />
+            <x-nav-item route="messages.index" icon="chat" label="Messages" :active="request()->routeIs('messages.*')" />
 
-            {{-- Dashboard --}}
-            <a href="{{ route('dashboard') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('dashboard') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Home
-            </a>
-
-            {{-- Orders --}}
-            <a href="{{ route('orders.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('orders.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                Orders
-            </a>
-
-            {{-- Messages --}}
-            <a href="{{ route('messages.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('messages.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                </svg>
-                Messages
-            </a>
-
-            @if(in_array($role, ['admin', 'manager']))
-            {{-- Divider --}}
-            <div class="my-3 border-t border-white/5"></div>
-            <p class="px-3 text-[10px] font-semibold text-white/25 uppercase tracking-widest mb-1">Team</p>
-
-            {{-- Users --}}
-            <a href="{{ route('users.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('users.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                </svg>
-                Users
-            </a>
-
-            {{-- Writers --}}
-            <a href="{{ route('writers.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('writers.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                </svg>
-                Writers
-            </a>
-
-            {{-- Mail --}}
-            <a href="{{ route('mail.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('mail.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Mail
-            </a>
+            @if (in_array($role, ['admin', 'manager']))
+                <p class="sidebar-section-label px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">Team</p>
+                <x-nav-item route="users.index" icon="users" label="Users" :active="request()->routeIs('users.*')" />
+                <x-nav-item route="writers.index" icon="pencil" label="Writers" :active="request()->routeIs('writers.*')" />
+                <x-nav-item route="mail.index" icon="envelope" label="Mail" :active="request()->routeIs('mail.*')" />
             @endif
 
-            @if($role === 'admin')
-            {{-- Divider --}}
-            <div class="my-3 border-t border-white/5"></div>
-            <p class="px-3 text-[10px] font-semibold text-white/25 uppercase tracking-widest mb-1">Website</p>
-
-            {{-- CMS / Pages --}}
-            <a href="{{ route('cms.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('cms.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Pages
-            </a>
-
-            {{-- Assignment Services --}}
-            <a href="{{ route('services-editor.index') }}"
-               class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all
-               {{ request()->routeIs('services-editor.*') ? 'bg-white/10 text-white' : 'text-white/50 hover:bg-white/5 hover:text-white/80' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                </svg>
-                Assignment Services
-            </a>
+            @if ($role === 'admin')
+                <p class="sidebar-section-label px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">Website</p>
+                <x-nav-item route="cms.index" icon="document" label="Pages" :active="request()->routeIs('cms.*')" />
+                <x-nav-item route="services-editor.index" icon="squares" label="Services" :active="request()->routeIs('services-editor.*')" />
             @endif
         </nav>
 
-        {{-- User profile --}}
-        <div class="p-3 border-t border-white/5">
-            <div class="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white/5 transition group">
-                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+        {{-- Signed-in user --}}
+        <div class="border-t border-zinc-200 p-3 dark:border-zinc-800">
+            <div class="flex items-center gap-3 rounded-lg px-2 py-2">
+                <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs text-white/80 font-medium truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-[10px] text-white/30 capitalize">{{ auth()->user()->role }}</p>
+                <div class="sidebar-label min-w-0 flex-1">
+                    <p class="truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">{{ auth()->user()->name }}</p>
+                    <p class="truncate text-[10px] capitalize text-zinc-500">{{ auth()->user()->role }}</p>
                 </div>
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="sidebar-label">
                     @csrf
-                    <button type="submit" title="Sign out"
-                            class="text-white/25 hover:text-white/70 transition">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
+                    <button type="submit" title="Sign out" aria-label="Sign out"
+                        class="text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100">
+                        <x-icon name="logout" class="size-4" />
                     </button>
                 </form>
             </div>
         </div>
     </aside>
 
-    {{-- ═══════════════ MAIN ═══════════════ --}}
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    {{-- ══════════════ MAIN ══════════════ --}}
+    <div class="flex min-w-0 flex-1 flex-col">
 
-        {{-- Topbar --}}
-        <header class="h-14 bg-white border-b border-gray-200 flex items-center px-6 gap-4 flex-shrink-0">
-            {{-- Breadcrumb / Title --}}
-            <div class="flex items-center gap-2 min-w-0">
-                <h1 class="text-[15px] font-semibold text-gray-800 truncate">@yield('heading', 'Dashboard')</h1>
-            </div>
+        <header class="hidden h-16 shrink-0 items-center gap-4 border-b border-zinc-200 bg-white px-6 lg:flex dark:border-zinc-800 dark:bg-zinc-900">
+            <h1 class="truncate text-base font-semibold text-zinc-900 dark:text-zinc-100">@yield('heading', 'Dashboard')</h1>
 
-            <div class="ml-auto flex items-center gap-3">
-                @if(session('success'))
-                <div class="flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-medium px-3 py-1.5 rounded-full border border-green-200">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                    {{ session('success') }}
-                </div>
-                @endif
-
-                {{-- Notifications placeholder --}}
-                <button class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
+            <div class="ml-auto flex items-center gap-1">
+                <button type="button" data-theme-toggle aria-label="Toggle dark mode"
+                    class="inline-flex size-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                    <x-icon name="sun" class="hidden size-5 dark:block" />
+                    <x-icon name="moon" class="size-5 dark:hidden" />
+                </button>
+                <button type="button" aria-label="Notifications"
+                    class="inline-flex size-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                    <x-icon name="bell" class="size-5" />
                 </button>
             </div>
         </header>
 
-        {{-- Page content --}}
-        <main class="flex-1 overflow-y-auto p-6">
-            @if($errors->any())
-            <div class="mb-4 flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
-                <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                <div>
-                    @foreach($errors->all() as $error)
-                    <p class="text-sm text-red-700">{{ $error }}</p>
-                    @endforeach
+        <main class="min-w-0 px-3 py-4 sm:px-4 md:p-6">
+
+            @if (session('success'))
+                <div class="mb-4 flex items-start gap-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
+                    <x-icon name="check-circle" class="mt-0.5 size-4 shrink-0 text-accent-content" />
+                    <p class="text-sm text-zinc-700 dark:text-zinc-200">{{ session('success') }}</p>
                 </div>
-            </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-3.5 dark:border-red-900/50 dark:bg-red-950/30">
+                    <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-red-500" />
+                    <p class="text-sm text-red-700 dark:text-red-400 dark:text-red-300">{{ session('error') }}</p>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-3.5 dark:border-red-900/50 dark:bg-red-950/30">
+                    <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-red-500" />
+                    <div class="space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <p class="text-sm text-red-700 dark:text-red-400 dark:text-red-300">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                </div>
             @endif
 
             @yield('content')
@@ -205,6 +171,55 @@
     </div>
 </div>
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script>
+    (function () {
+        var root = document.documentElement;
+
+        document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var dark = root.classList.toggle('dark');
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+            });
+        });
+
+        // Desktop collapse. The class is set on <html> in the head script too,
+        // so the collapsed width is correct on first paint.
+        var toggle = document.getElementById('sidebar-toggle');
+
+        if (toggle && root.classList.contains('sidebar-collapsed')) {
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', 'Expand sidebar');
+        }
+
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                var collapsed = root.classList.toggle('sidebar-collapsed');
+                toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+                try { localStorage.setItem('sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (e) {}
+            });
+        }
+
+        // Mobile drawer.
+        var sidebar = document.getElementById('sidebar');
+        var backdrop = document.getElementById('sidebar-backdrop');
+        var menuBtn = document.getElementById('mobile-menu-toggle');
+
+        function setDrawer(open) {
+            if (!sidebar) return;
+            sidebar.classList.toggle('-translate-x-full', !open);
+            if (backdrop) backdrop.hidden = !open;
+            if (menuBtn) menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function () {
+                setDrawer(sidebar.classList.contains('-translate-x-full'));
+            });
+        }
+        if (backdrop) backdrop.addEventListener('click', function () { setDrawer(false); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setDrawer(false); });
+    })();
+</script>
 </body>
 </html>

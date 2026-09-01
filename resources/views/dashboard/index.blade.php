@@ -47,29 +47,29 @@
 </div>
 
 {{-- Quick actions --}}
-<div class="bg-white rounded-2xl border border-gray-200 p-5">
-    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Quick Actions</p>
+<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+    <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-3">Quick Actions</p>
     <div class="flex flex-wrap gap-2">
         <a href="{{ route('orders.index') }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-sm text-gray-700 font-medium hover:bg-gray-100 transition">
-            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-700 dark:text-zinc-300 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             All Orders
         </a>
         <a href="{{ route('orders.index', ['status' => 'pending']) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-700 font-medium hover:bg-amber-100 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-sm text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/20 transition">
             ⏳ Pending
         </a>
         <a href="{{ route('messages.index', ['unread' => 1]) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700 font-medium hover:bg-red-100 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-sm text-red-700 dark:text-red-400 font-medium hover:bg-red-100 dark:bg-red-500/15 dark:hover:bg-red-500/20 transition">
             💬 Unread
         </a>
         @if(in_array($role, ['admin', 'manager']))
         <a href="{{ route('orders.index', ['status' => 'in_progress']) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-700 font-medium hover:bg-blue-100 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-sm text-blue-700 dark:text-blue-400 font-medium hover:bg-blue-100 dark:bg-blue-500/15 dark:hover:bg-blue-500/20 transition">
             🔄 In Progress
         </a>
         <a href="{{ route('writers.index') }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-sm text-indigo-700 font-medium hover:bg-indigo-100 transition">
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-sm text-accent-content font-medium hover:bg-accent/20 transition">
             ✍️ Writers
         </a>
         @endif

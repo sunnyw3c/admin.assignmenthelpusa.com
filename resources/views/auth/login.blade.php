@@ -1,66 +1,135 @@
+{{-- The sign-in page is always dark, as on asset-management.test: the grid,
+     the glow and the frosted card only read against the dark ground, so this
+     page deliberately ignores the theme toggle the rest of the panel uses. --}}
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — Admin</title>
+    <link rel="icon" href="{{ asset('images/logo-mark.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ asset('favicon.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
-    <style>* { font-family: 'Inter', sans-serif; }</style>
+
+    <style>
+        body {
+            background-color: #0f1117 !important;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px) !important;
+            background-size: 44px 44px !important;
+            position: relative;
+        }
+
+        /* Glow behind the brand, so the top of the page is not flat. */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 600px;
+            background: radial-gradient(ellipse at center, rgba(163, 230, 53, .07) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .auth-card {
+            background: rgba(24, 24, 27, .85) !important;
+            border: 1px solid rgba(255, 255, 255, .07) !important;
+            border-radius: 1rem !important;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, .5) !important;
+        }
+
+        .auth-field {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .09);
+            color: #f4f4f5;
+        }
+
+        .auth-field::placeholder { color: #52525b; }
+
+        .auth-field:focus {
+            outline: none;
+            border-color: #a3e635;
+            box-shadow: 0 0 0 3px rgba(163, 230, 53, .15);
+        }
+    </style>
 </head>
-<body class="h-full bg-[#f5f5f5] flex items-center justify-center p-4">
+<body class="min-h-screen antialiased">
 
-    <div class="w-full max-w-[380px]">
+<div class="relative z-10 flex min-h-screen flex-col items-center justify-center p-6">
 
-        {{-- Logo --}}
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg mb-4">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <h1 class="text-xl font-bold text-gray-900">Sign in to Admin</h1>
-            <p class="text-sm text-gray-500 mt-1">Staff access only</p>
-        </div>
+    {{-- Brand. The orange wordmark is the variant the main site ships for dark
+         grounds, so it is the one that belongs here. --}}
+    <div class="mb-8 flex flex-col items-center">
+        <img src="{{ asset('images/logo-dark.svg') }}" alt="Assignment Help USA" class="h-11 w-auto">
+        <p class="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-600">Admin Panel</p>
+    </div>
 
-        {{-- Card --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+    {{-- Card --}}
+    <div class="auth-card w-full max-w-sm px-8 py-8">
 
-            @if($errors->any())
-            <div class="mb-4 flex gap-2.5 bg-red-50 border border-red-200 rounded-xl p-3.5">
-                <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                <div>
-                    @foreach($errors->all() as $error)
-                    <p class="text-sm text-red-700">{{ $error }}</p>
+        <h1 class="text-lg font-bold text-zinc-100">Sign in</h1>
+        <p class="mt-1 text-sm text-zinc-500">Staff access only</p>
+
+        @if ($errors->any())
+            <div class="mt-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5">
+                <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-red-400" />
+                <div class="space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <p class="text-sm text-red-300">{{ $error }}</p>
                     @endforeach
                 </div>
             </div>
-            @endif
+        @endif
 
-            <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
-                @csrf
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400
-                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                           placeholder="you@company.com">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-                    <input type="password" name="password" required
-                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400
-                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                           placeholder="••••••••">
-                </div>
-                <button type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
-                    Continue →
-                </button>
-            </form>
-        </div>
+        @if (session('error'))
+            <div class="mt-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5">
+                <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-red-400" />
+                <p class="text-sm text-red-300">{{ session('error') }}</p>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.post') }}" class="mt-6 space-y-4">
+            @csrf
+
+            <div>
+                <label for="email" class="mb-1.5 block text-xs font-medium text-zinc-400">Email address</label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                       autocomplete="username" placeholder="you@company.com"
+                       class="auth-field w-full rounded-lg px-3 py-2.5 text-sm transition">
+            </div>
+
+            <div>
+                <label for="password" class="mb-1.5 block text-xs font-medium text-zinc-400">Password</label>
+                <input id="password" type="password" name="password" required
+                       autocomplete="current-password" placeholder="••••••••"
+                       class="auth-field w-full rounded-lg px-3 py-2.5 text-sm transition">
+            </div>
+
+            <label class="flex items-center gap-2 text-sm text-zinc-400">
+                <input type="checkbox" name="remember" value="1"
+                       class="size-4 rounded border-zinc-600 bg-white/5 text-lime-400 focus:ring-lime-400/40">
+                Remember me
+            </label>
+
+            <button type="submit"
+                    class="w-full rounded-lg py-2.5 text-sm font-semibold text-zinc-900 transition hover:opacity-90"
+                    style="background: linear-gradient(135deg, #84cc16, #a3e635);">
+                Continue
+            </button>
+        </form>
     </div>
+
+    <p class="mt-7 text-[11px] text-zinc-700">&copy; {{ date('Y') }} Assignment Help USA</p>
+</div>
+
 </body>
 </html>

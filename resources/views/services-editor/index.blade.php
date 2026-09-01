@@ -5,79 +5,79 @@
 @section('content')
 
 <div class="flex items-center justify-between mb-6">
-    <p class="text-sm text-gray-500">Manage assignment service pages — content, pricing, and details.</p>
+    <p class="text-sm text-zinc-500">Manage assignment service pages — content, pricing, and details.</p>
     <a href="{{ route('services-editor.create') }}"
-       class="flex items-center gap-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition">
+       class="flex items-center gap-1.5 text-sm font-semibold text-accent-foreground bg-accent hover:opacity-90 px-4 py-2 rounded-xl transition">
         + New Service
     </a>
 </div>
 
 @if(session('success'))
-<div class="mb-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+<div class="mb-4 text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl px-4 py-3">
     {{ session('success') }}
 </div>
 @endif
 
-<div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
     <table class="w-full">
         <thead>
-            <tr class="border-b border-gray-100">
-                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Service</th>
-                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">URL Slug</th>
-                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Price / Page</th>
-                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Rating</th>
-                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
+            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Service</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">URL Slug</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Price / Page</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Rating</th>
+                <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
                 <th class="px-5 py-3"></th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
             @forelse($services as $service)
-            <tr class="hover:bg-gray-50/60 group transition-colors">
+            <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50/60 group transition-colors">
                 <td class="px-5 py-3">
                     <div class="flex items-center gap-2.5">
                         <span class="text-xl">{{ $service['icon'] ?? '📄' }}</span>
                         <div>
-                            <div class="text-sm font-medium text-gray-800">{{ $service['name'] }}</div>
+                            <div class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ $service['name'] }}</div>
                             @if(!empty($service['short_description']))
-                            <div class="text-xs text-gray-400 truncate max-w-xs">{{ Str::limit($service['short_description'], 60) }}</div>
+                            <div class="text-xs text-zinc-400 truncate max-w-xs">{{ Str::limit($service['short_description'], 60) }}</div>
                             @endif
                         </div>
                     </div>
                 </td>
-                <td class="px-5 py-3 text-xs text-gray-400 font-mono">/{{ $service['slug'] }}</td>
-                <td class="px-5 py-3 text-sm text-gray-600">
+                <td class="px-5 py-3 text-xs text-zinc-400 font-mono">/{{ $service['slug'] }}</td>
+                <td class="px-5 py-3 text-sm text-zinc-600 dark:text-zinc-400">
                     @if(!empty($service['base_price_per_page']))
                         ${{ $service['base_price_per_page'] }}
                     @else
-                        <span class="text-gray-300">—</span>
+                        <span class="text-zinc-300 dark:text-zinc-600">—</span>
                     @endif
                 </td>
-                <td class="px-5 py-3 text-sm text-gray-600">
+                <td class="px-5 py-3 text-sm text-zinc-600 dark:text-zinc-400">
                     @if(!empty($service['rating']))
                         <span class="text-amber-500">★</span> {{ $service['rating'] }}
                     @else
-                        <span class="text-gray-300">—</span>
+                        <span class="text-zinc-300 dark:text-zinc-600">—</span>
                     @endif
                 </td>
                 <td class="px-5 py-3">
                     @if($service['is_active'] ?? true)
-                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-200">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-200 dark:ring-emerald-500/30">
                         <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Active
                     </span>
                     @else
-                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full ring-1 ring-gray-200">
-                        <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>Inactive
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full ring-1 ring-zinc-200 dark:ring-zinc-800">
+                        <span class="w-1.5 h-1.5 bg-zinc-400 rounded-full"></span>Inactive
                     </span>
                     @endif
                 </td>
                 <td class="px-5 py-3 text-right">
                     <a href="{{ route('services-editor.edit', $service['id']) }}"
-                       class="text-xs font-medium text-indigo-600 hover:text-indigo-800 opacity-0 group-hover:opacity-100 transition">Edit →</a>
+                       class="text-xs font-medium text-accent-content hover:opacity-80 opacity-0 group-hover:opacity-100 transition">Edit →</a>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="px-5 py-16 text-center text-sm text-gray-400">No services found.</td>
+                <td colspan="6" class="px-5 py-16 text-center text-sm text-zinc-400">No services found.</td>
             </tr>
             @endforelse
         </tbody>
