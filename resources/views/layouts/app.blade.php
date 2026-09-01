@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-zinc-100 font-sans antialiased dark:bg-zinc-950">
 
@@ -115,7 +115,7 @@
                 <form method="POST" action="{{ route('logout') }}" class="sidebar-label">
                     @csrf
                     <button type="submit" title="Sign out" aria-label="Sign out"
-                        class="text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100">
+                        class="inline-flex size-9 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
                         <x-icon name="logout" class="size-4" />
                     </button>
                 </form>
@@ -158,7 +158,37 @@
             </div>
         </header>
 
+        {{-- The header above is lg-only, and every detail view puts its title
+             and its back arrow inside @yield('heading'). Without this strip a
+             phone gets no page title and no way back to the list. --}}
+        <div class="border-b border-zinc-200/70 px-4 py-3 lg:hidden dark:border-zinc-800/70">
+            <h1 class="flex min-w-0 items-center text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                @yield('heading', 'Dashboard')
+            </h1>
+        </div>
+
         <main class="rise min-w-0 px-3 py-4 sm:px-4 md:p-6">
+
+            {{-- The API returning an error and the API returning no records
+                 both end up as an empty array, so without this a 401 reads as
+                 "no orders yet". Say which it was. --}}
+            @if ($apiStatus = \App\Services\AdminApiService::failedStatus())
+                <div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3.5 dark:border-amber-500/40 dark:bg-amber-500/10">
+                    <x-icon name="x-circle" class="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <div>
+                        <p class="text-sm font-medium text-amber-800 dark:text-amber-300">
+                            Could not reach the main API (HTTP {{ $apiStatus }}).
+                        </p>
+                        <p class="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
+                            @if ($apiStatus === 401 || $apiStatus === 403)
+                                MAIN_API_TOKEN is missing, expired, or lacks a staff role. Anything below may be incomplete.
+                            @else
+                                Check MAIN_API_URL and that the API is running. Anything below may be incomplete.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            @endif
 
             @if (session('success'))
                 <div class="mb-4 flex items-start gap-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
@@ -224,20 +254,44 @@
         var backdrop = document.getElementById('sidebar-backdrop');
         var menuBtn = document.getElementById('mobile-menu-toggle');
 
+        function drawerOpen() {
+            return sidebar && !sidebar.classList.contains('-translate-x-full');
+        }
+
         function setDrawer(open) {
             if (!sidebar) return;
             sidebar.classList.toggle('-translate-x-full', !open);
             if (backdrop) backdrop.hidden = !open;
             if (menuBtn) menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+            // The drawer covers the page, so the page behind it must not scroll
+            // under the user's finger while it is open.
+            document.body.style.overflow = open ? 'hidden' : '';
+
+            if (open) {
+                var first = sidebar.querySelector('a, button');
+                if (first) first.focus({ preventScroll: true });
+            } else if (menuBtn && sidebar.contains(document.activeElement)) {
+                menuBtn.focus({ preventScroll: true });
+            }
         }
 
         if (menuBtn) {
             menuBtn.addEventListener('click', function () {
-                setDrawer(sidebar.classList.contains('-translate-x-full'));
+                setDrawer(!drawerOpen());
             });
         }
         if (backdrop) backdrop.addEventListener('click', function () { setDrawer(false); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setDrawer(false); });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && drawerOpen()) setDrawer(false);
+        });
+
+        // Crossing into the lg layout makes the sidebar static again. Without
+        // this the backdrop and the scroll lock would survive the resize and
+        // leave the desktop page covered and unscrollable.
+        matchMedia('(min-width: 1024px)').addEventListener('change', function (e) {
+            if (e.matches && drawerOpen()) setDrawer(false);
+        });
     })();
 </script>
 </div>

@@ -3,9 +3,25 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Psr\Http\Message\ResponseInterface;
 
 class AdminApiService
 {
+    /**
+     * Status of the last failed API response, if any.
+     *
+     * Every method here ends in `?? []`, so an error body becomes an empty
+     * list and the page renders as though there were simply no records. That
+     * is indistinguishable from a real empty state, so the failure is recorded
+     * here and surfaced by the layout instead of vanishing.
+     */
+    private static ?int $failedStatus = null;
+
+    public static function failedStatus(): ?int
+    {
+        return static::$failedStatus;
+    }
+
     private string $baseUrl;
 
     public function __construct()
@@ -19,7 +35,14 @@ class AdminApiService
             ->withToken((string) config('services.main_api.token'))
             ->withoutVerifying()
             ->acceptJson()
-            ->timeout(15);
+            ->timeout(15)
+            ->withResponseMiddleware(function (ResponseInterface $response) {
+                if ($response->getStatusCode() >= 400) {
+                    static::$failedStatus = $response->getStatusCode();
+                }
+
+                return $response;
+            });
     }
 
     // Stats
