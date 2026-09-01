@@ -12,8 +12,8 @@
 @endif
 
 {{-- Summary bar --}}
-<div class="card px-5 py-3.5 mb-4 flex items-center justify-between">
-    <div class="flex items-center gap-4">
+<div class="card px-5 py-3.5 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
         <p class="text-sm text-zinc-500"><span class="font-semibold text-zinc-900 dark:text-zinc-100">{{ count($writers) }}</span> writers</p>
         <div class="h-4 w-px bg-zinc-200 dark:bg-zinc-700"></div>
         <p class="text-sm text-zinc-500">
@@ -95,7 +95,7 @@
         </div>
     </div>
     @empty
-    <div class="col-span-3 py-20 text-center card">
+    <div class="sm:col-span-2 xl:col-span-3 py-20 text-center card">
         <div class="text-5xl mb-3">✍️</div>
         <p class="text-sm text-zinc-400 mb-4">No writers found</p>
         <a href="{{ route('writers.create') }}"

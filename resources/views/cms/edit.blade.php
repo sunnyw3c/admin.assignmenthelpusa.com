@@ -1,13 +1,16 @@
 @extends('layouts.app')
 @section('title', $pageName . ' — CMS')
+{{-- Phrasing content, not a <div>: the layout yields this into an <h1> in
+     both the desktop header and the mobile heading strip. --}}
 @section('heading')
-<div class="flex items-center gap-3">
-    <a href="{{ route('cms.index') }}" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition">
+<span class="flex min-w-0 items-center gap-3">
+    <a href="{{ route('cms.index') }}" aria-label="Back to pages"
+       class="-ml-1 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </a>
-    <span>{{ $pageName }}</span>
-    <span class="text-xs text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">/{{ $page }}</span>
-</div>
+    <span class="truncate">{{ $pageName }}</span>
+    <span class="shrink-0 text-xs text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">/{{ $page }}</span>
+</span>
 @endsection
 
 @section('content')
@@ -51,7 +54,7 @@
                 + Add Section
                 <svg class="w-3.5 h-3.5 transition-transform" :class="open && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="open" @click.away="open = false" x-transition
+            <div x-show="open" x-cloak @click.away="open = false" x-transition
                  class="absolute right-0 mt-2 w-64 card shadow-xl z-20 overflow-hidden">
                 <div class="p-2">
                     @foreach($sectionTypes as $typeKey => $typeInfo)
@@ -137,11 +140,11 @@
             </div>
 
             {{-- Inline editor --}}
-            <div x-show="editing"
+            <div x-show="editing" x-cloak
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 -translate-y-1"
                  x-transition:enter-end="opacity-100 translate-y-0"
-                 class="border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50/60 px-5 py-5">
+                 class="border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 px-5 py-5">
                 <form method="POST" action="{{ route('cms.update-section', $section['id']) }}">
                     @csrf
                     <input type="hidden" name="page" value="{{ $page }}">
@@ -176,7 +179,7 @@
 </div>
 
 {{-- ══ SEO TAB ═══════════════════════════════════════════════════════════════ --}}
-<div x-show="tab === 'seo'" x-transition>
+<div x-show="tab === 'seo'" x-transition x-cloak>
     <div class="card p-6">
         <form method="POST" action="{{ route('cms.meta', $page) }}">
             @csrf
@@ -246,7 +249,7 @@
 </div>
 
 {{-- ══ HISTORY TAB ═══════════════════════════════════════════════════════════ --}}
-<div x-show="tab === 'history'" x-transition>
+<div x-show="tab === 'history'" x-transition x-cloak>
     <div class="card overflow-hidden">
         @if(count($revisions) > 0)
         <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -267,7 +270,7 @@
                     <button @click="open = !open" class="text-xs text-accent-content hover:opacity-80 mt-1">
                         <span x-text="open ? 'hide diff ▲' : 'show diff ▼'"></span>
                     </button>
-                    <div x-show="open" class="mt-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3 text-xs font-mono text-zinc-500 overflow-auto max-h-40">
+                    <div x-show="open" x-cloak class="mt-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3 text-xs font-mono text-zinc-500 overflow-auto max-h-40">
                         {{ json_encode($rev['new_data'] ?? $rev['old_data'], JSON_PRETTY_PRINT) }}
                     </div>
                     @endif

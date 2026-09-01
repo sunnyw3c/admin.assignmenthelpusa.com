@@ -1,13 +1,16 @@
 @extends('layouts.app')
 @section('title', 'Order ' . ($order['order_number'] ?? '#' . ($order['id'] ?? '')))
+{{-- Phrasing content, not a <div>: the layout yields this into an <h1> in
+     both the desktop header and the mobile heading strip. --}}
 @section('heading')
-    <div class="flex items-center gap-3">
-        <a href="{{ route('orders.index') }}" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition">
+    <span class="flex min-w-0 items-center gap-3">
+        <a href="{{ route('orders.index') }}" aria-label="Back to orders"
+           class="-ml-1 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         </a>
-        <span>{{ $order['order_number'] ?? '#' . ($order['id'] ?? '') }}</span>
+        <span class="truncate">{{ $order['order_number'] ?? '#' . ($order['id'] ?? '') }}</span>
         <x-status-badge :status="$order['status'] ?? 'pending'" type="order"/>
-    </div>
+    </span>
 @endsection
 
 @section('content')
@@ -51,7 +54,7 @@
         {{-- Financials --}}
         <div class="card p-6">
             <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Financials</h2>
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div class="text-center p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
                     <p class="text-xs text-zinc-400 mb-1">Budget</p>
                     <p class="text-xl font-bold text-zinc-900 dark:text-zinc-100">${{ number_format($order['budget'] ?? 0, 2) }}</p>

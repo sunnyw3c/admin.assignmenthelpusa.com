@@ -22,7 +22,7 @@
             </div>
             <div class="flex items-center justify-between">
                 <span class="text-xs text-zinc-400">{{ config('app.main_api_url') }}/{{ $slug }}</span>
-                <span class="text-xs font-semibold text-accent-content opacity-0 group-hover:opacity-100 transition">Edit →</span>
+                <span class="text-xs font-semibold text-accent-content row-action">Edit →</span>
             </div>
         </a>
         @endforeach
@@ -41,44 +41,46 @@
 
     @if(count($dynamicPages) > 0)
     <div class="card overflow-hidden">
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-zinc-100 dark:border-zinc-800">
-                    <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Page</th>
-                    <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">URL</th>
-                    <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
-                    <th class="px-5 py-3"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                @foreach($dynamicPages as $page)
-                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50/60 group transition-colors">
-                    <td class="px-5 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ $page['name'] }}</td>
-                    <td class="px-5 py-3 text-xs text-zinc-400 font-mono">/{{ $page['slug'] }}</td>
-                    <td class="px-5 py-3">
-                        @if($page['is_active'])
-                        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-200 dark:ring-emerald-500/30">
-                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Live
-                        </span>
-                        @else
-                        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full ring-1 ring-zinc-200 dark:ring-zinc-800">
-                            <span class="w-1.5 h-1.5 bg-zinc-400 rounded-full"></span>Hidden
-                        </span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-3 flex items-center gap-2 justify-end">
-                        <a href="{{ route('cms.edit', $page['slug']) }}"
-                           class="text-xs font-medium text-accent-content hover:opacity-80 opacity-0 group-hover:opacity-100 transition">Edit →</a>
-                        <form method="POST" action="{{ route('cms.delete-page', $page['slug']) }}"
-                              onsubmit="return confirm('Delete this page and all its sections?')">
-                            @csrf
-                            <button type="submit" class="text-xs text-red-400 hover:text-red-600 dark:text-red-400 opacity-0 group-hover:opacity-100 transition">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Page</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">URL</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
+                        <th class="px-5 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                    @foreach($dynamicPages as $page)
+                    <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 group transition-colors">
+                        <td class="px-5 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ $page['name'] }}</td>
+                        <td class="px-5 py-3 text-xs text-zinc-400 font-mono">/{{ $page['slug'] }}</td>
+                        <td class="px-5 py-3">
+                            @if($page['is_active'])
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-200 dark:ring-emerald-500/30">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Live
+                            </span>
+                            @else
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full ring-1 ring-zinc-200 dark:ring-zinc-800">
+                                <span class="w-1.5 h-1.5 bg-zinc-400 rounded-full"></span>Hidden
+                            </span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3 flex items-center gap-2 justify-end">
+                            <a href="{{ route('cms.edit', $page['slug']) }}"
+                               class="text-xs font-medium text-accent-content row-action hover:underline">Edit →</a>
+                            <form method="POST" action="{{ route('cms.delete-page', $page['slug']) }}"
+                                  onsubmit="return confirm('Delete this page and all its sections?')">
+                                @csrf
+                                <button type="submit" class="text-xs text-red-400 hover:text-red-600 dark:text-red-400 row-action">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
     @else
     <div class="card py-16 text-center">

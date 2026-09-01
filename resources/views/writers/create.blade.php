@@ -17,13 +17,13 @@
             <div>
                 <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Full Name <span class="text-red-500">*</span></label>
                 <input type="text" name="name" value="{{ old('name') }}" required
-                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 @error('name') border-red-400 @enderror">
+                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition @error('name') border-red-400 @enderror">
                 @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Email <span class="text-red-500">*</span></label>
                 <input type="email" name="email" value="{{ old('email') }}" required
-                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 @error('email') border-red-400 @enderror">
+                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition @error('email') border-red-400 @enderror">
                 @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
         </div>
@@ -31,7 +31,7 @@
         <div>
             <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Password <span class="text-red-500">*</span></label>
             <input type="password" name="password" required
-                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 @error('password') border-red-400 @enderror">
+                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition @error('password') border-red-400 @enderror">
             @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
         </div>
 
@@ -39,19 +39,19 @@
         <div>
             <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Title / Degree</label>
             <input type="text" name="title" value="{{ old('title') }}" placeholder="e.g. PhD in Mathematics"
-                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition">
         </div>
 
         <div>
             <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Bio</label>
             <textarea name="bio" rows="3" placeholder="Short description about the writer..."
-                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 resize-none">{{ old('bio') }}</textarea>
+                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition resize-none">{{ old('bio') }}</textarea>
         </div>
 
         <div>
             <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Expertise / Subjects</label>
             <input type="text" name="expertise" value="{{ old('expertise') }}" placeholder="Math, Physics, Programming (comma-separated)"
-                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition">
             <p class="text-xs text-zinc-400 mt-1">Separate subjects with commas</p>
         </div>
 
@@ -59,24 +59,24 @@
             <div>
                 <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Rating (0–5)</label>
                 <input type="number" name="rating" value="{{ old('rating', 5) }}" min="0" max="5" step="0.1"
-                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Experience (years)</label>
                 <input type="number" name="experience_years" value="{{ old('experience_years', 0) }}" min="0"
-                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Completed Projects</label>
                 <input type="number" name="completed_projects" value="{{ old('completed_projects', 0) }}" min="0"
-                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition">
             </div>
         </div>
 
         <div>
             <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Profile Photo</label>
             <input type="file" name="photo" accept="image/*"
-                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40">
+                class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition">
         </div>
 
         <div class="flex items-center gap-3 pt-2">

@@ -16,6 +16,12 @@
     ];
 
     [$from, $to] = $hues[$color] ?? $hues['accent'];
+
+    // A formatted revenue figure is far wider than an order count, and at four
+    // columns the tile has no room to spare — "$1,284,932.55" ran past its box
+    // at text-3xl. Step the size down once the value gets long.
+    $len = mb_strlen((string) $value);
+    $valueSize = $len > 12 ? 'text-xl' : ($len > 8 ? 'text-2xl' : 'text-3xl');
 @endphp
 
 <div {{ $attributes->merge(['class' => 'card card-lift group relative overflow-hidden p-5']) }}>
@@ -34,7 +40,8 @@
     <div class="relative flex items-start justify-between gap-3">
         <div class="min-w-0">
             <p class="eyebrow truncate">{{ $label }}</p>
-            <p class="mt-2 text-3xl font-bold tracking-tight tabular-nums text-zinc-900 dark:text-zinc-50">{{ $value }}</p>
+            <p title="{{ $value }}"
+               class="mt-2 truncate {{ $valueSize }} font-bold tracking-tight tabular-nums text-zinc-900 dark:text-zinc-50">{{ $value }}</p>
             @if ($trend)
                 <p class="mt-1 text-xs text-zinc-500">{{ $trend }}</p>
             @endif

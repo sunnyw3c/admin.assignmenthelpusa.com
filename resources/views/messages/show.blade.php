@@ -1,24 +1,30 @@
 @extends('layouts.app')
 @section('title', 'Thread')
+{{-- Phrasing content, not a <div>: the layout yields this into an <h1> in
+     both the desktop header and the mobile heading strip. --}}
 @section('heading')
-    <div class="flex items-center gap-3">
-        <a href="{{ route('messages.index') }}" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition">
+    <span class="flex min-w-0 items-center gap-3">
+        <a href="{{ route('messages.index') }}" aria-label="Back to messages"
+           class="-ml-1 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         </a>
-        <span>{{ $thread['assignment']['user']['name'] ?? 'Thread' }}</span>
+        <span class="truncate">{{ $thread['assignment']['user']['name'] ?? 'Thread' }}</span>
         @php $assignment = $thread['assignment'] ?? []; @endphp
-        <span class="font-mono text-xs text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{{ $assignment['order_number'] ?? '#'.($assignment['id'] ?? '') }}</span>
-    </div>
+        <span class="shrink-0 font-mono text-xs text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{{ $assignment['order_number'] ?? '#'.($assignment['id'] ?? '') }}</span>
+    </span>
 @endsection
 
 @section('content')
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-5 h-[calc(100vh-130px)]">
+{{-- The fixed height only makes sense once the two columns sit side by side.
+     Below xl they stack, and pinning the pair to one viewport height squeezed
+     the conversation into a third of the screen. --}}
+<div class="grid grid-cols-1 gap-5 xl:h-[calc(100vh-8rem)] xl:grid-cols-3">
 
     {{-- Chat column --}}
     <div class="xl:col-span-2 flex flex-col card overflow-hidden">
 
         {{-- Messages scroll area --}}
-        <div class="flex-1 overflow-y-auto p-5 space-y-4" id="msg-scroll">
+        <div class="min-h-[24rem] flex-1 overflow-y-auto p-5 space-y-4" id="msg-scroll">
             @forelse($thread['messages'] ?? [] as $msg)
             @php
                 $isMe = ($msg['sender']['name'] ?? '') === auth()->user()->name;
@@ -71,7 +77,7 @@
     </div>
 
     {{-- Info sidebar --}}
-    <div class="space-y-4 overflow-y-auto">
+    <div class="space-y-4 xl:overflow-y-auto">
 
         {{-- Order info --}}
         <div class="card p-5">

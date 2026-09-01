@@ -143,6 +143,19 @@
     .eyebrow {
         @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400;
     }
+
+    /* Tables carry six to eight columns and cannot shrink below the width of
+       their own content, so below a laptop they must scroll rather than be
+       clipped by the card's rounded overflow. The wrapper owns the scroll; the
+       table keeps a floor width so columns stay legible instead of collapsing
+       into a stack of wrapped words. */
+    .table-scroll {
+        @apply overflow-x-auto overscroll-x-contain;
+    }
+
+    .table-scroll > table {
+        @apply w-full min-w-[46rem];
+    }
 }
 
 /* Content sits above the ambient wash. */
@@ -171,6 +184,28 @@
 
 [x-cloak] {
     display: none !important;
+}
+
+/* Row actions ("Open →", "Edit →", "Delete") used to be hidden with
+   `opacity-0 group-hover:opacity-100`. A touch device has no hover, so on a
+   phone or tablet those links were permanently invisible — and they were
+   invisible to keyboard users too. Reveal on hover only where hovering is
+   possible, and always on focus. */
+.row-action {
+    opacity: 1;
+    transition: opacity .15s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .row-action {
+        opacity: 0;
+    }
+
+    .group:hover .row-action,
+    .row-action:focus-visible,
+    .row-action:focus-within {
+        opacity: 1;
+    }
 }
 
 /* ── Entrance ─────────────────────────────────────────────────────────────

@@ -29,7 +29,7 @@
     <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
         @forelse($threads['data'] ?? [] as $thread)
         <a href="{{ route('messages.show', $thread['id'] ?? 0) }}"
-           class="flex items-start gap-4 px-5 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50/60 transition-colors group">
+           class="flex items-start gap-4 px-5 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
 
             {{-- Avatar --}}
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 mt-0.5">

@@ -49,60 +49,62 @@
 
 {{-- Table --}}
 <div class="card overflow-hidden">
-    <table class="w-full">
-        <thead>
-            <tr class="border-b border-zinc-100 dark:border-zinc-800">
-                <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Order</th>
-                <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Student</th>
-                <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Subject</th>
-                <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Deadline</th>
-                <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
-                <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Payment</th>
-                <th class="text-right px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Budget</th>
-                <th class="px-5 py-3.5"></th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
-            @forelse($orders['data'] ?? [] as $order)
-            <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50/60 transition-colors group">
-                <td class="px-5 py-3.5">
-                    <span class="font-mono text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{{ $order['order_number'] ?? '#'.($order['id'] ?? '—') }}</span>
-                </td>
-                <td class="px-5 py-3.5">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                            {{ strtoupper(substr($order['user']['name'] ?? 'U', 0, 1)) }}
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Order</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Student</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Subject</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Deadline</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Status</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Payment</th>
+                    <th class="text-right px-5 py-3.5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">Budget</th>
+                    <th class="px-5 py-3.5"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                @forelse($orders['data'] ?? [] as $order)
+                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
+                    <td class="px-5 py-3.5">
+                        <span class="font-mono text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{{ $order['order_number'] ?? '#'.($order['id'] ?? '—') }}</span>
+                    </td>
+                    <td class="px-5 py-3.5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                                {{ strtoupper(substr($order['user']['name'] ?? 'U', 0, 1)) }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200 leading-tight">{{ $order['user']['name'] ?? '—' }}</p>
+                                <p class="text-xs text-zinc-400 leading-tight">{{ $order['user']['email'] ?? '' }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200 leading-tight">{{ $order['user']['name'] ?? '—' }}</p>
-                            <p class="text-xs text-zinc-400 leading-tight">{{ $order['user']['email'] ?? '' }}</p>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-5 py-3.5 text-sm text-zinc-600 dark:text-zinc-400 max-w-[180px] truncate">{{ $order['subject'] ?? '—' }}</td>
-                <td class="px-5 py-3.5 text-sm text-zinc-500 whitespace-nowrap">
-                    {{ ($order['deadline'] ?? null) ? \Carbon\Carbon::parse($order['deadline'])->format('M j, Y') : '—' }}
-                </td>
-                <td class="px-5 py-3.5"><x-status-badge :status="$order['status'] ?? 'pending'" type="order"/></td>
-                <td class="px-5 py-3.5"><x-status-badge :status="$order['payment_status'] ?? 'unpaid'" type="payment"/></td>
-                <td class="px-5 py-3.5 text-right text-sm font-semibold text-zinc-700 dark:text-zinc-300">${{ number_format($order['budget'] ?? 0, 2) }}</td>
-                <td class="px-5 py-3.5">
-                    <a href="{{ route('orders.show', $order['id'] ?? 0) }}"
-                       class="text-xs font-medium text-accent-content hover:opacity-80 opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
-                        Open →
-                    </a>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="8" class="px-5 py-16 text-center">
-                    <div class="text-zinc-300 dark:text-zinc-600 text-4xl mb-3">📋</div>
-                    <p class="text-sm text-zinc-400">No orders found</p>
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                    </td>
+                    <td class="px-5 py-3.5 text-sm text-zinc-600 dark:text-zinc-400 max-w-[180px] truncate">{{ $order['subject'] ?? '—' }}</td>
+                    <td class="px-5 py-3.5 text-sm text-zinc-500 whitespace-nowrap">
+                        {{ ($order['deadline'] ?? null) ? \Carbon\Carbon::parse($order['deadline'])->format('M j, Y') : '—' }}
+                    </td>
+                    <td class="px-5 py-3.5"><x-status-badge :status="$order['status'] ?? 'pending'" type="order"/></td>
+                    <td class="px-5 py-3.5"><x-status-badge :status="$order['payment_status'] ?? 'unpaid'" type="payment"/></td>
+                    <td class="px-5 py-3.5 text-right text-sm font-semibold text-zinc-700 dark:text-zinc-300">${{ number_format($order['budget'] ?? 0, 2) }}</td>
+                    <td class="px-5 py-3.5">
+                        <a href="{{ route('orders.show', $order['id'] ?? 0) }}"
+                           class="text-xs font-medium text-accent-content row-action hover:underline whitespace-nowrap">
+                            Open →
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="px-5 py-16 text-center">
+                        <div class="text-zinc-300 dark:text-zinc-600 text-4xl mb-3">📋</div>
+                        <p class="text-sm text-zinc-400">No orders found</p>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
     {{-- Pagination --}}
     @if(isset($orders['last_page']) && $orders['last_page'] > 1)

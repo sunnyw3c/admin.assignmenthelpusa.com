@@ -41,7 +41,7 @@
                     required
                     autofocus
                     placeholder="student@example.com"
-                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 @error('email') border-red-400 @enderror"
+                    class="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-accent/40 transition @error('email') border-red-400 @enderror"
                 >
                 @error('email')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
