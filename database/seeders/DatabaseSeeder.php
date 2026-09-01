@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +16,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $password = env('SEED_ADMIN_PASSWORD');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        if (blank($password)) {
+            $this->command->warn('SEED_ADMIN_PASSWORD is not set; skipping admin user seed.');
+
+            return;
+        }
+
+        User::updateOrCreate(
+            ['email' => env('SEED_ADMIN_EMAIL', 'support@assignmenthelpusa.com')],
+            [
+                'name'              => 'Support',
+                'password'          => Hash::make($password),
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }
