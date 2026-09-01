@@ -30,10 +30,12 @@
 </head>
 <body class="min-h-screen bg-zinc-100 font-sans antialiased dark:bg-zinc-950">
 
+<div id="app-shell">
+
 @php $role = auth()->user()->role; @endphp
 
 {{-- ══════════════ MOBILE TOP BAR ══════════════ --}}
-<div class="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 lg:hidden dark:border-zinc-800 dark:bg-zinc-900">
+<div class="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 lg:hidden dark:border-zinc-800 dark:bg-zinc-900/85">
     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
         <img src="{{ asset('images/logo-mark.svg') }}" alt="" class="size-7">
         <span class="font-bold text-zinc-900 dark:text-zinc-100">Admin</span>
@@ -58,10 +60,10 @@
 
     {{-- ══════════════ SIDEBAR ══════════════ --}}
     <aside id="sidebar"
-        class="fixed inset-y-0 left-0 z-50 flex w-56 flex-col border-r border-zinc-200 bg-white
+        class="fixed inset-y-0 left-0 z-50 flex w-56 flex-col border-r border-zinc-200 bg-white/85 backdrop-blur-xl
                -translate-x-full transition-[transform,width] duration-200
                lg:static lg:min-h-screen lg:translate-x-0
-               dark:border-zinc-800 dark:bg-zinc-900">
+               dark:border-zinc-800 dark:bg-zinc-900/85">
 
         {{-- Brand --}}
         <div class="sidebar-brand flex items-center gap-3 px-5 py-5">
@@ -124,23 +126,39 @@
     {{-- ══════════════ MAIN ══════════════ --}}
     <div class="flex min-w-0 flex-1 flex-col">
 
-        <header class="hidden h-16 shrink-0 items-center gap-4 border-b border-zinc-200 bg-white px-6 lg:flex dark:border-zinc-800 dark:bg-zinc-900">
-            <h1 class="truncate text-base font-semibold text-zinc-900 dark:text-zinc-100">@yield('heading', 'Dashboard')</h1>
+        {{-- Sticky and translucent, so content scrolls under it rather than
+             disappearing behind an opaque bar. --}}
+        <header class="sticky top-0 z-20 hidden h-16 shrink-0 items-center gap-4 border-b border-zinc-200/70 bg-white/70 px-6 backdrop-blur-xl lg:flex dark:border-zinc-800/70 dark:bg-zinc-950/60">
+            <div class="min-w-0">
+                <h1 class="truncate text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">@yield('heading', 'Dashboard')</h1>
+                <span aria-hidden="true" class="mt-1 block h-0.5 w-9 rounded-full"
+                      style="background-image: linear-gradient(90deg, var(--color-brand-from), var(--color-brand-to));"></span>
+            </div>
 
             <div class="ml-auto flex items-center gap-1">
+                {{-- The two glyphs cross-fade and spin rather than swapping, so
+                     the theme change reads as one movement. --}}
                 <button type="button" data-theme-toggle aria-label="Toggle dark mode"
-                    class="inline-flex size-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
-                    <x-icon name="sun" class="hidden size-5 dark:block" />
-                    <x-icon name="moon" class="size-5 dark:hidden" />
+                    class="group relative inline-flex size-9 items-center justify-center overflow-hidden rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                    <x-icon name="sun" class="absolute size-5 rotate-90 scale-0 opacity-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dark:opacity-100" />
+                    <x-icon name="moon" class="absolute size-5 transition-all duration-300 dark:-rotate-90 dark:scale-0 dark:opacity-0" />
                 </button>
                 <button type="button" aria-label="Notifications"
-                    class="inline-flex size-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                    class="relative inline-flex size-9 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
                     <x-icon name="bell" class="size-5" />
                 </button>
+
+                <span class="mx-1 h-5 w-px bg-zinc-200 dark:bg-zinc-800"></span>
+
+                <span class="flex size-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                      style="background-image: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));"
+                      title="{{ auth()->user()->name }}">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </span>
             </div>
         </header>
 
-        <main class="min-w-0 px-3 py-4 sm:px-4 md:p-6">
+        <main class="rise min-w-0 px-3 py-4 sm:px-4 md:p-6">
 
             @if (session('success'))
                 <div class="mb-4 flex items-start gap-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
@@ -222,5 +240,6 @@
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setDrawer(false); });
     })();
 </script>
+</div>
 </body>
 </html>

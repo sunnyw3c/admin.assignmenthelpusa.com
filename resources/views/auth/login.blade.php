@@ -34,7 +34,7 @@
             transform: translateX(-50%);
             width: 800px;
             height: 600px;
-            background: radial-gradient(ellipse at center, rgba(163, 230, 53, .07) 0%, transparent 65%);
+            background: radial-gradient(ellipse at center, rgba(230, 57, 70, .10) 0%, transparent 65%);
             pointer-events: none;
             z-index: 0;
         }
@@ -50,8 +50,8 @@
             opacity: 0;
             transition: opacity .35s;
             background-image:
-                linear-gradient(rgba(163, 230, 53, .18) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(163, 230, 53, .18) 1px, transparent 1px);
+                linear-gradient(rgba(242, 101, 34, .22) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(242, 101, 34, .22) 1px, transparent 1px);
             background-size: 44px 44px;
             mask-image: radial-gradient(350px circle at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
             -webkit-mask-image: radial-gradient(350px circle at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
@@ -83,8 +83,8 @@
 
         .auth-field:focus {
             outline: none;
-            border-color: #a3e635;
-            box-shadow: 0 0 0 3px rgba(163, 230, 53, .15);
+            border-color: #f26522;
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, .18);
         }
 
         /* Show/hide password. The two icons are both in the button and swapped
@@ -113,7 +113,7 @@
         .pw-toggle:hover { color: #a1a1aa; }
 
         .pw-toggle:focus-visible {
-            outline: 2px solid rgba(163, 230, 53, .45);
+            outline: 2px solid rgba(230, 57, 70, .5);
             outline-offset: -2px;
         }
 
@@ -188,13 +188,13 @@
 
             <label class="flex items-center gap-2 text-sm text-zinc-400">
                 <input type="checkbox" name="remember" value="1"
-                       class="size-4 rounded border-zinc-600 bg-white/5 text-lime-400 focus:ring-lime-400/40">
+                       class="size-4 rounded border-zinc-600 bg-white/5 text-orange-500 focus:ring-orange-500/40">
                 Remember me
             </label>
 
             <button type="submit"
                     class="w-full rounded-lg py-2.5 text-sm font-semibold text-zinc-900 transition hover:opacity-90"
-                    style="background: linear-gradient(135deg, #84cc16, #a3e635);">
+                    style="background: linear-gradient(135deg, #e63946, #f26522);">
                 Continue
             </button>
         </form>

@@ -12,7 +12,7 @@
     $expertiseStr = is_array($writer['expertise'] ?? null) ? implode(', ', $writer['expertise']) : ($writer['expertise'] ?? '');
 @endphp
 
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 max-w-2xl">
+<div class="card p-6 max-w-2xl">
     <form action="{{ route('writers.update', $writer['id']) }}" method="POST" enctype="multipart/form-data" class="space-y-5">
         @csrf
 

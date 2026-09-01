@@ -21,7 +21,7 @@
 
     <form method="POST" action="{{ route('services-editor.store') }}" x-data="{ name: '', slug: '' }">
         @csrf
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5">
+        <div class="card p-6 space-y-5">
             <div>
                 <label class="block text-xs font-medium text-zinc-500 mb-1.5">Service Name <span class="text-red-400">*</span></label>
                 <input type="text" name="name" required value="{{ old('name') }}"

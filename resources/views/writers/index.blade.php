@@ -12,7 +12,7 @@
 @endif
 
 {{-- Summary bar --}}
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-3.5 mb-4 flex items-center justify-between">
+<div class="card px-5 py-3.5 mb-4 flex items-center justify-between">
     <div class="flex items-center gap-4">
         <p class="text-sm text-zinc-500"><span class="font-semibold text-zinc-900 dark:text-zinc-100">{{ count($writers) }}</span> writers</p>
         <div class="h-4 w-px bg-zinc-200 dark:bg-zinc-700"></div>
@@ -33,7 +33,7 @@
 {{-- Writers grid --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
     @forelse($writers as $writer)
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 hover:shadow-sm transition-shadow">
+    <div class="card p-5 hover:shadow-sm transition-shadow">
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-4">
             @if(!empty($writer['photo']))
@@ -95,7 +95,7 @@
         </div>
     </div>
     @empty
-    <div class="col-span-3 py-20 text-center bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div class="col-span-3 py-20 text-center card">
         <div class="text-5xl mb-3">✍️</div>
         <p class="text-sm text-zinc-400 mb-4">No writers found</p>
         <a href="{{ route('writers.create') }}"

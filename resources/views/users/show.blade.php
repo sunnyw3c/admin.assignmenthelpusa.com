@@ -17,7 +17,7 @@
     <div class="xl:col-span-2 space-y-4">
 
         {{-- Profile card --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
+        <div class="card p-6">
             <div class="flex items-center gap-4 mb-5">
                 <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-white text-xl font-bold">
                     {{ strtoupper(substr($user['name'] ?? 'U', 0, 1)) }}
@@ -46,7 +46,7 @@
 
         {{-- Recent orders --}}
         @if(!empty($user['orders']))
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div class="card overflow-hidden">
             <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
                 <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Orders</h2>
             </div>
@@ -83,7 +83,7 @@
     <div class="space-y-4">
 
         {{-- Edit --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div class="card p-5">
             <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">Edit User</h2>
             <form method="POST" action="{{ route('users.update', $user['id'] ?? 0) }}" class="space-y-3">
                 @csrf
@@ -106,7 +106,7 @@
 
         {{-- Change role (admin only) --}}
         @if(auth()->user()->role === 'admin')
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div class="card p-5">
             <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">Change Role</h2>
             <form method="POST" action="{{ route('users.role', $user['id'] ?? 0) }}" class="space-y-3">
                 @csrf

@@ -1,32 +1,50 @@
 @props(['label', 'value', 'color' => 'accent', 'icon' => '', 'trend' => null])
 
 @php
-    // Tints stay muted so the accent stays the loudest thing on the page.
-    $iconBg = [
-        'accent' => 'bg-accent/15 text-accent-content',
-        'indigo' => 'bg-accent/15 text-accent-content',
-        'green'  => 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
-        'blue'   => 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
-        'red'    => 'bg-red-500/15 text-red-600 dark:text-red-400',
-        'yellow' => 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-        'orange' => 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
-        'purple' => 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
-    ][$color] ?? 'bg-accent/15 text-accent-content';
+    // Each tile carries one hue: the icon tile, the hairline along the top and
+    // the bloom in the corner all come from the same pair, so the card reads as
+    // one object rather than a box with a coloured sticker on it.
+    $hues = [
+        'accent' => ['#e63946', '#f26522'],
+        'indigo' => ['#e63946', '#f26522'],
+        'red'    => ['#e11d48', '#f43f5e'],
+        'orange' => ['#ea580c', '#fb923c'],
+        'yellow' => ['#d97706', '#fbbf24'],
+        'green'  => ['#059669', '#34d399'],
+        'blue'   => ['#0284c7', '#38bdf8'],
+        'purple' => ['#7c3aed', '#a78bfa'],
+    ];
+
+    [$from, $to] = $hues[$color] ?? $hues['accent'];
 @endphp
 
-<div class="card p-5 transition-shadow hover:shadow-sm">
-    <div class="flex items-start justify-between gap-3">
+<div {{ $attributes->merge(['class' => 'card card-lift group relative overflow-hidden p-5']) }}>
+
+    {{-- Hairline along the top edge, brightening on hover. --}}
+    <span aria-hidden="true"
+          class="absolute inset-x-0 top-0 h-0.5 opacity-70 transition-opacity duration-200 group-hover:opacity-100"
+          style="background-image: linear-gradient(90deg, {{ $from }}, {{ $to }});"></span>
+
+    {{-- Soft bloom in the corner. Scales up on hover so the tile answers the
+         pointer without anything moving that the eye has to re-read. --}}
+    <span aria-hidden="true"
+          class="pointer-events-none absolute -right-8 -top-10 size-32 rounded-full opacity-50 blur-2xl transition-transform duration-500 group-hover:scale-125"
+          style="background-image: radial-gradient(circle, {{ $to }}33, transparent 70%);"></span>
+
+    <div class="relative flex items-start justify-between gap-3">
         <div class="min-w-0">
-            <p class="truncate text-xs font-medium uppercase tracking-wide text-zinc-500">{{ $label }}</p>
-            <p class="mt-1.5 text-2xl font-bold text-zinc-900 dark:text-zinc-100">{{ $value }}</p>
+            <p class="eyebrow truncate">{{ $label }}</p>
+            <p class="mt-2 text-3xl font-bold tracking-tight tabular-nums text-zinc-900 dark:text-zinc-50">{{ $value }}</p>
             @if ($trend)
                 <p class="mt-1 text-xs text-zinc-500">{{ $trend }}</p>
             @endif
         </div>
+
         @if ($icon)
-            <div class="flex size-10 shrink-0 items-center justify-center rounded-xl text-lg {{ $iconBg }}">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl text-lg shadow-sm transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-110"
+                  style="background-image: linear-gradient(135deg, {{ $from }}1f, {{ $to }}2e); box-shadow: inset 0 0 0 1px {{ $from }}26;">
                 {{ $icon }}
-            </div>
+            </span>
         @endif
     </div>
 </div>

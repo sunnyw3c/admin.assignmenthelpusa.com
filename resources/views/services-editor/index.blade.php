@@ -18,7 +18,7 @@
 </div>
 @endif
 
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+<div class="card overflow-hidden">
     <table class="w-full">
         <thead>
             <tr class="border-b border-zinc-100 dark:border-zinc-800">

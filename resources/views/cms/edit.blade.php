@@ -14,7 +14,7 @@
 <div x-data="{ tab: 'sections' }" class="space-y-5">
 
 {{-- Tabs --}}
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-2.5 flex items-center gap-1">
+<div class="card px-5 py-2.5 flex items-center gap-1">
     <button @click="tab = 'sections'"
             :class="tab === 'sections' ? 'bg-accent/10 text-accent-content' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
             class="px-4 py-2 text-sm font-medium rounded-lg transition">
@@ -52,7 +52,7 @@
                 <svg class="w-3.5 h-3.5 transition-transform" :class="open && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open" @click.away="open = false" x-transition
-                 class="absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xl z-20 overflow-hidden">
+                 class="absolute right-0 mt-2 w-64 card shadow-xl z-20 overflow-hidden">
                 <div class="p-2">
                     @foreach($sectionTypes as $typeKey => $typeInfo)
                     <form method="POST" action="{{ route('cms.add-section', $page) }}">
@@ -78,7 +78,7 @@
     @if(count($sections) > 0)
     <div id="section-list" class="space-y-3">
         @foreach($sections as $section)
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition hover:shadow-sm"
+        <div class="card overflow-hidden transition hover:shadow-sm"
              data-section-id="{{ $section['id'] }}"
              x-data="{ editing: false }">
 
@@ -167,7 +167,7 @@
         @endforeach
     </div>
     @else
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 border-dashed py-20 text-center">
+    <div class="card border-dashed py-20 text-center">
         <div class="text-5xl mb-3">📄</div>
         <p class="text-sm text-zinc-400 mb-2">No sections yet</p>
         <p class="text-xs text-zinc-300 dark:text-zinc-600">Click "+ Add Section" to add your first section</p>
@@ -177,7 +177,7 @@
 
 {{-- ══ SEO TAB ═══════════════════════════════════════════════════════════════ --}}
 <div x-show="tab === 'seo'" x-transition>
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
+    <div class="card p-6">
         <form method="POST" action="{{ route('cms.meta', $page) }}">
             @csrf
             <div class="grid grid-cols-1 gap-4">
@@ -247,7 +247,7 @@
 
 {{-- ══ HISTORY TAB ═══════════════════════════════════════════════════════════ --}}
 <div x-show="tab === 'history'" x-transition>
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <div class="card overflow-hidden">
         @if(count($revisions) > 0)
         <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
             @foreach($revisions as $rev)

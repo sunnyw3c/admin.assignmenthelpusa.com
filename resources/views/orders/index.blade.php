@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- Filters bar --}}
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-3.5 mb-4 flex flex-wrap items-center gap-3">
+<div class="card px-5 py-3.5 mb-4 flex flex-wrap items-center gap-3">
     <form method="GET" action="{{ route('orders.index') }}" class="flex flex-wrap items-center gap-2.5 flex-1">
 
         {{-- Search --}}
@@ -48,7 +48,7 @@
 </div>
 
 {{-- Table --}}
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+<div class="card overflow-hidden">
     <table class="w-full">
         <thead>
             <tr class="border-b border-zinc-100 dark:border-zinc-800">

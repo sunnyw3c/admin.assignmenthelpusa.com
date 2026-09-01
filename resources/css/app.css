@@ -14,29 +14,37 @@
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-zinc-50: #fafafa;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #e5e5e5;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #a3a3a3;
-    --color-zinc-500: #737373;
-    --color-zinc-600: #525252;
-    --color-zinc-700: #404040;
-    --color-zinc-800: #262626;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
+    /* The neutral is warm rather than blue-grey, so it sits under the crimson
+       brand without the two fighting. Kept on the zinc-* names the views
+       already use, so the whole panel re-skins from here. */
+    --color-zinc-50: #fafaf9;
+    --color-zinc-100: #f5f5f4;
+    --color-zinc-200: #e7e5e4;
+    --color-zinc-300: #d6d3d1;
+    --color-zinc-400: #a8a29e;
+    --color-zinc-500: #78716c;
+    --color-zinc-600: #57534e;
+    --color-zinc-700: #44403c;
+    --color-zinc-800: #292524;
+    --color-zinc-900: #1c1917;
+    --color-zinc-950: #0c0a09;
 
-    /* Accent: lime-700 in light mode, neon lime-400 in dark. */
-    --color-accent: #4d7c0f;
-    --color-accent-content: #4d7c0f;
-    --color-accent-foreground: var(--color-white);
+    /* Accent is the logo's crimson, lifted to a warmer red in dark mode where
+       the deep crimson goes muddy. */
+    --color-accent: #d62828;
+    --color-accent-content: #c41e1e;
+    --color-accent-foreground: #ffffff;
+
+    /* The mark's crimson-to-orange run, used for every brand gradient. */
+    --color-brand-from: #e63946;
+    --color-brand-to: #f26522;
 }
 
 @layer theme {
     .dark {
-        --color-accent: #a3e635;
-        --color-accent-content: #a3e635;
-        --color-accent-foreground: #0a0a0a;
+        --color-accent: #ff6b6b;
+        --color-accent-content: #ff8787;
+        --color-accent-foreground: #1c1917;
     }
 }
 
@@ -56,6 +64,26 @@
     .dark ::file-selector-button {
         border-color: var(--color-zinc-800, currentColor);
     }
+
+    /* Ambient wash. Two brand-tinted pools sit behind everything so the page
+       reads as lit rather than as flat grey. Fixed, so it does not travel
+       with the scroll. */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(60rem 40rem at 12% -10%, rgba(230, 57, 70, .07), transparent 60%),
+            radial-gradient(50rem 35rem at 105% 8%, rgba(242, 101, 34, .06), transparent 60%);
+    }
+
+    .dark body::before {
+        background:
+            radial-gradient(60rem 40rem at 12% -10%, rgba(255, 107, 107, .10), transparent 60%),
+            radial-gradient(50rem 35rem at 105% 8%, rgba(242, 101, 34, .07), transparent 60%);
+    }
 }
 
 @layer components {
@@ -63,8 +91,9 @@
        rather than repeating the same chain of utilities on every input. */
     .field {
         @apply w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900
+               transition-[border-color,box-shadow] duration-150
                placeholder:text-zinc-400
-               focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30
+               focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15
                disabled:cursor-not-allowed disabled:bg-zinc-100
                dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500
                dark:disabled:bg-zinc-800;
@@ -75,19 +104,30 @@
     }
 
     .card {
-        @apply rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900;
+        @apply rounded-2xl border border-zinc-200/80 bg-white/90 backdrop-blur-sm
+               dark:border-zinc-800 dark:bg-zinc-900/80;
+    }
+
+    /* Lift on hover, for cards that are themselves links or tiles. */
+    .card-lift {
+        @apply transition-[transform,box-shadow] duration-200
+               hover:-translate-y-0.5 hover:shadow-lg hover:shadow-zinc-900/5
+               dark:hover:shadow-black/30;
     }
 
     .btn,
     .btn-primary,
     .btn-secondary,
     .btn-danger {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium
-               transition-colors focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium
+               transition-[transform,box-shadow,background-color,color] duration-150
+               focus:outline-none focus:ring-4 focus:ring-accent/20 active:translate-y-px
+               disabled:pointer-events-none disabled:opacity-50;
     }
 
     .btn-primary {
-        @apply bg-accent text-accent-foreground hover:opacity-90;
+        @apply text-white shadow-sm shadow-accent/25 hover:shadow-md hover:shadow-accent/30;
+        background-image: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
     }
 
     .btn-secondary {
@@ -98,6 +138,17 @@
     .btn-danger {
         @apply bg-red-600 text-white hover:bg-red-700;
     }
+
+    /* Section heading used above card groups. */
+    .eyebrow {
+        @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400;
+    }
+}
+
+/* Content sits above the ambient wash. */
+#app-shell {
+    position: relative;
+    z-index: 1;
 }
 
 ::-webkit-scrollbar {
@@ -122,10 +173,70 @@
     display: none !important;
 }
 
-/* Collapsed sidebar: hide the labels, centre the icons. Driven by a class on
-   <body> so the state survives a full page load with no flash. */
-.sidebar-collapsed #sidebar {
-    width: 4.5rem;
+/* ── Entrance ─────────────────────────────────────────────────────────────
+   Main content fades up on load. Purely decorative, so it is dropped
+   entirely for anyone who asked for reduced motion. */
+@keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.rise {
+    animation: rise .4s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* Staggered children, so a grid of tiles arrives as a sweep. */
+.rise-stagger > * {
+    animation: rise .45s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.rise-stagger > *:nth-child(1) { animation-delay: .02s; }
+.rise-stagger > *:nth-child(2) { animation-delay: .06s; }
+.rise-stagger > *:nth-child(3) { animation-delay: .10s; }
+.rise-stagger > *:nth-child(4) { animation-delay: .14s; }
+.rise-stagger > *:nth-child(5) { animation-delay: .18s; }
+.rise-stagger > *:nth-child(6) { animation-delay: .22s; }
+.rise-stagger > *:nth-child(7) { animation-delay: .26s; }
+.rise-stagger > *:nth-child(8) { animation-delay: .30s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .rise,
+    .rise-stagger > * {
+        animation: none;
+    }
+
+    .card-lift:hover {
+        transform: none;
+    }
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+
+/* The active item is marked by a rail on the left edge rather than only by a
+   fill, so it stays legible when the sidebar is collapsed to icons. */
+.nav-item {
+    position: relative;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background-image: linear-gradient(to bottom, var(--color-brand-from), var(--color-brand-to));
+    transform: translateY(-50%);
+    transition: height .22s cubic-bezier(.22, 1, .36, 1);
+}
+
+.nav-item[aria-current='page']::before {
+    height: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-item::before { transition: none; }
 }
 
 .sidebar-brand-mark {
@@ -147,6 +258,12 @@
     display: none;
 }
 
+/* Collapsed sidebar: hide the labels, centre the icons. Driven by a class on
+   <html> so the width is correct on first paint, with no flash. */
+.sidebar-collapsed #sidebar {
+    width: 4.5rem;
+}
+
 .sidebar-collapsed #sidebar .nav-item {
     justify-content: center;
     padding-left: 0;
@@ -157,9 +274,9 @@
     transform: rotate(180deg);
 }
 
-/* Collapsed, the sidebar is 4.5rem wide and px-5 would leave the brand row no
-   content box at all — preflight's img{max-width:100%} would then size the
-   mark to zero. Stack the mark over the toggle and tighten the padding. */
+/* Collapsed, the sidebar is 4.5rem wide and the brand row's px-5 would leave
+   its flex child no content box; preflight's img{max-width:100%} would then
+   size the mark to zero width. Stack the mark over the toggle instead. */
 .sidebar-collapsed .sidebar-brand {
     flex-direction: column;
     gap: 0.5rem;

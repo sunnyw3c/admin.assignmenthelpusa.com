@@ -4,7 +4,7 @@
 
 @section('content')
 {{-- Filters --}}
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-3.5 mb-4 flex flex-wrap items-center gap-3">
+<div class="card px-5 py-3.5 mb-4 flex flex-wrap items-center gap-3">
     <form method="GET" action="{{ route('users.index') }}" class="flex flex-wrap items-center gap-2.5 flex-1">
         <div class="relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -28,7 +28,7 @@
     @endif
 </div>
 
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+<div class="card overflow-hidden">
     <table class="w-full">
         <thead>
             <tr class="border-b border-zinc-100 dark:border-zinc-800">

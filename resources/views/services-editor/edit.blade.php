@@ -62,7 +62,7 @@
 
 {{-- ===== SERVICE TAB ===== --}}
 <div x-show="tab === 'service'" x-transition.opacity>
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5">
+    <div class="card p-6 space-y-5">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
@@ -172,7 +172,7 @@
     <div class="space-y-6">
 
         {{-- Hero --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4">
+        <div class="card p-6 space-y-4">
             <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Hero Section</h3>
             <div>
                 <label class="block text-xs font-medium text-zinc-500 mb-1.5">Hero Title</label>
@@ -193,7 +193,7 @@
 
         {{-- What We Offer --}}
         @php $whatWeOffer = $d['what_we_offer'] ?? []; @endphp
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($whatWeOffer) ? $whatWeOffer : []) }} }">
+        <div class="card p-6" x-data="{ items: {{ json_encode(is_array($whatWeOffer) ? $whatWeOffer : []) }} }">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">What We Offer</h3>
                 <button type="button" @click="items.push({ icon: '', title: '', description: '' })"
@@ -217,7 +217,7 @@
 
         {{-- FAQs --}}
         @php $faqs = $d['faqs'] ?? []; @endphp
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($faqs) ? $faqs : []) }} }">
+        <div class="card p-6" x-data="{ items: {{ json_encode(is_array($faqs) ? $faqs : []) }} }">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">FAQs</h3>
                 <button type="button" @click="items.push({ question: '', answer: '' })"
@@ -240,7 +240,7 @@
 
         {{-- Testimonials --}}
         @php $testimonials = $d['testimonials'] ?? []; @endphp
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($testimonials) ? $testimonials : []) }} }">
+        <div class="card p-6" x-data="{ items: {{ json_encode(is_array($testimonials) ? $testimonials : []) }} }">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Testimonials</h3>
                 <button type="button" @click="items.push({ name: '', role: 'Student', university: '', rating: 5, review: '', project: '' })"
@@ -267,7 +267,7 @@
 
         {{-- Process Steps --}}
         @php $processSteps = $d['process_steps'] ?? []; @endphp
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($processSteps) ? $processSteps : []) }} }">
+        <div class="card p-6" x-data="{ items: {{ json_encode(is_array($processSteps) ? $processSteps : []) }} }">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Process Steps</h3>
                 <button type="button" @click="items.push({ step: String(items.length + 1).padStart(2,'0'), title: '', description: '' })"
@@ -292,7 +292,7 @@
         {{-- Deliverables & Guarantees (simple arrays) --}}
         @php $deliverables = $d['deliverables'] ?? []; $guarantees = $d['guarantees'] ?? []; @endphp
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($deliverables) ? $deliverables : []) }} }">
+            <div class="card p-6" x-data="{ items: {{ json_encode(is_array($deliverables) ? $deliverables : []) }} }">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Deliverables</h3>
                     <button type="button" @click="items.push('')" class="text-xs font-medium text-accent-content hover:opacity-80 bg-accent/10 hover:bg-accent/20 px-2.5 py-1 rounded-lg transition">+ Add</button>
@@ -307,7 +307,7 @@
                 </div>
                 <input type="hidden" name="details_deliverables" :value="JSON.stringify(items)">
             </div>
-            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($guarantees) ? $guarantees : []) }} }">
+            <div class="card p-6" x-data="{ items: {{ json_encode(is_array($guarantees) ? $guarantees : []) }} }">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Guarantees</h3>
                     <button type="button" @click="items.push('')" class="text-xs font-medium text-accent-content hover:opacity-80 bg-accent/10 hover:bg-accent/20 px-2.5 py-1 rounded-lg transition">+ Add</button>
@@ -326,7 +326,7 @@
 
         {{-- Sample Topics (simple string array) --}}
         @php $sampleTopics = $d['sample_topics'] ?? []; @endphp
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6" x-data="{ items: {{ json_encode(is_array($sampleTopics) ? $sampleTopics : []) }} }">
+        <div class="card p-6" x-data="{ items: {{ json_encode(is_array($sampleTopics) ? $sampleTopics : []) }} }">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Sample Topics</h3>
                 <button type="button" @click="items.push('')" class="text-xs font-medium text-accent-content hover:opacity-80 bg-accent/10 hover:bg-accent/20 px-2.5 py-1 rounded-lg transition">+ Add</button>
@@ -354,7 +354,7 @@
 
 {{-- ===== SEO TAB ===== --}}
 <div x-show="tab === 'seo'" x-transition.opacity x-cloak>
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-5">
+    <div class="card p-6 space-y-5">
         <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">SEO Meta</h3>
         <div>
             <label class="block text-xs font-medium text-zinc-500 mb-1.5">Meta Title</label>

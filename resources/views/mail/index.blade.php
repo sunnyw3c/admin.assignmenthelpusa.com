@@ -14,7 +14,7 @@
 @endif
 
 <div class="max-w-lg">
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
+    <div class="card p-6">
 
         {{-- Info banner --}}
         <div class="flex items-start gap-3 bg-accent/10 border border-accent/20 rounded-xl p-4 mb-6">

@@ -10,7 +10,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         @foreach($builtInPages as $slug => $info)
         <a href="{{ route('cms.edit', $slug) }}"
-           class="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 hover:shadow-md transition-all">
+           class="group card p-5 hover:shadow-md transition-all">
             <div class="flex items-center gap-3 mb-3">
                 <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-xl">
                     {{ $info['icon'] }}
@@ -40,7 +40,7 @@
     </div>
 
     @if(count($dynamicPages) > 0)
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <div class="card overflow-hidden">
         <table class="w-full">
             <thead>
                 <tr class="border-b border-zinc-100 dark:border-zinc-800">
@@ -81,7 +81,7 @@
         </table>
     </div>
     @else
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 py-16 text-center">
+    <div class="card py-16 text-center">
         <div class="text-4xl mb-3">📄</div>
         <p class="text-sm text-zinc-400">No custom pages yet. Create one to get started.</p>
     </div>

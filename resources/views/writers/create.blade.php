@@ -8,7 +8,7 @@
 <div class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-4 text-sm">{{ session('error') }}</div>
 @endif
 
-<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 max-w-2xl">
+<div class="card p-6 max-w-2xl">
     <form action="{{ route('writers.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
         @csrf
 

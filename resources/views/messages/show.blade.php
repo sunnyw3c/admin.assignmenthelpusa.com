@@ -15,7 +15,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 h-[calc(100vh-130px)]">
 
     {{-- Chat column --}}
-    <div class="xl:col-span-2 flex flex-col bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <div class="xl:col-span-2 flex flex-col card overflow-hidden">
 
         {{-- Messages scroll area --}}
         <div class="flex-1 overflow-y-auto p-5 space-y-4" id="msg-scroll">
@@ -74,7 +74,7 @@
     <div class="space-y-4 overflow-y-auto">
 
         {{-- Order info --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div class="card p-5">
             <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-3">Order</h2>
             <dl class="space-y-2.5">
                 <div>
@@ -104,7 +104,7 @@
         </div>
 
         {{-- Student info --}}
-        <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div class="card p-5">
             <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-3">Student</h2>
             @php $user = $assignment['user'] ?? []; @endphp
             <div class="flex items-center gap-3">
