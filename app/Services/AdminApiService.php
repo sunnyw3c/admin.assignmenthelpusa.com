@@ -285,9 +285,13 @@ class AdminApiService
     }
 
     // Mail
-    public function sendPromotionalEmail(string $email): array
+    public function sendPromotionalEmail(string $email, array $campaign = []): array
     {
-        $response = $this->client()->post('/mail/send', compact('email'));
+        $response = $this->client()->post('/mail/send', [
+            'email' => $email,
+            'campaign' => $campaign,
+        ]);
+
         return ['status' => $response->status(), 'data' => $response->json()];
     }
 }
