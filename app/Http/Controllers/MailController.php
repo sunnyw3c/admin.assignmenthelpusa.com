@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AdminApiService;
+use App\Models\MailDraft;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -60,38 +61,86 @@ class MailController extends Controller
         $campaign = collect(array_replace($this->campaignDefaults(), old('campaign', [])))
             ->map(fn ($value) => is_string($value) ? $value : '')
             ->all();
+        $mailType = old('mail_type', 'promotional');
+        $drafts = MailDraft::query()
+            ->where('user_id', auth()->id())
+            ->latest('updated_at')
+            ->get()
+            ->map(function (MailDraft $draft) {
+                $campaign = collect(array_replace($this->campaignDefaults(), $draft->content))
+                    ->map(fn ($value) => is_string($value) ? $value : '')
+                    ->all();
 
-        return view('mail.index', compact('recipients', 'campaign'));
+                return [
+                    'id' => $draft->id,
+                    'name' => $draft->name,
+                    'mail_type' => $draft->mail_type,
+                    'campaign' => $campaign,
+                    'updated_at' => $draft->updated_at->diffForHumans(),
+                    'delete_url' => route('mail.drafts.delete', $draft),
+                ];
+            })
+            ->values();
+
+        return view('mail.index', compact('recipients', 'campaign', 'mailType', 'drafts'));
     }
 
     public function send(Request $request)
     {
         $this->authorizeMail();
 
-        $validated = $request->validate([
-            'email' => 'required|email|max:255',
-            'campaign.subject' => ['required', 'string', 'max:150', 'not_regex:/[\r\n]/'],
-            'campaign.preheader' => 'nullable|string|max:180',
-            'campaign.headline' => 'required|string|max:140',
-            'campaign.message' => 'required|string|max:2000',
-            'campaign.offer_label' => 'required|string|max:60',
-            'campaign.promo_code' => ['nullable', 'string', 'max:32', 'regex:/^[A-Za-z0-9_-]+$/'],
-            'campaign.cta_text' => 'required|string|max:60',
-            'campaign.cta_url' => 'required|url:http,https|max:2048',
-            'campaign.accent_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-        ]);
+        $validated = $request->validate(array_merge(
+            ['email' => 'required|email|max:255'],
+            $this->campaignRules(),
+        ));
 
         $result = $this->api->sendPromotionalEmail(
             $validated['email'],
             $validated['campaign'],
+            $validated['mail_type'],
         );
 
         if ($result['status'] >= 200 && $result['status'] < 300) {
-            return back()->with('success', 'Promotional email sent to ' . $request->email);
+            $label = $validated['mail_type'] === 'direct' ? 'Direct email' : 'Promotional email';
+
+            return back()->with('success', $label . ' sent to ' . $request->email);
         }
 
         $error = $result['data']['message'] ?? 'Failed to send email. Please try again.';
         return back()->withInput()->with('error', $error);
+    }
+
+    public function saveDraft(Request $request)
+    {
+        $this->authorizeMail();
+
+        $validated = $request->validate(array_merge(
+            ['draft_name' => 'required|string|max:100'],
+            $this->campaignRules(),
+        ));
+
+        MailDraft::updateOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'name' => $validated['draft_name'],
+            ],
+            [
+                'mail_type' => $validated['mail_type'],
+                'content' => $validated['campaign'],
+            ],
+        );
+
+        return back()->with('success', 'Mail draft saved.');
+    }
+
+    public function deleteDraft(MailDraft $draft)
+    {
+        $this->authorizeMail();
+        abort_unless($draft->user_id === auth()->id(), 403);
+
+        $draft->delete();
+
+        return back()->with('success', 'Mail draft deleted.');
     }
 
     private function campaignDefaults(): array
@@ -106,6 +155,22 @@ class MailController extends Controller
             'cta_text' => 'Claim your discount',
             'cta_url' => rtrim((string) config('services.main_api.site_url', 'https://assignmenthelpusa.com'), '/') . '/order',
             'accent_color' => '#e63946',
+        ];
+    }
+
+    private function campaignRules(): array
+    {
+        return [
+            'mail_type' => 'required|in:promotional,direct',
+            'campaign.subject' => ['required', 'string', 'max:150', 'not_regex:/[\r\n]/'],
+            'campaign.preheader' => 'nullable|string|max:180',
+            'campaign.headline' => 'required|string|max:140',
+            'campaign.message' => 'required|string|max:2000',
+            'campaign.offer_label' => 'nullable|required_if:mail_type,promotional|string|max:60',
+            'campaign.promo_code' => ['nullable', 'prohibited_if:mail_type,direct', 'string', 'max:32', 'regex:/^[A-Za-z0-9_-]+$/'],
+            'campaign.cta_text' => 'required|string|max:60',
+            'campaign.cta_url' => 'required|url:http,https|max:2048',
+            'campaign.accent_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 

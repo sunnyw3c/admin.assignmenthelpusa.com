@@ -60,6 +60,8 @@ Route::middleware('admin.auth')->group(function () {
     // Mail
     Route::get('/mail', [MailController::class, 'index'])->name('mail.index');
     Route::post('/mail', [MailController::class, 'send'])->name('mail.send');
+    Route::post('/mail/drafts', [MailController::class, 'saveDraft'])->name('mail.drafts.save');
+    Route::delete('/mail/drafts/{draft}', [MailController::class, 'deleteDraft'])->name('mail.drafts.delete');
 
     // Assignment Services Editor
     Route::get('/services-editor', [ServiceEditorController::class, 'index'])->name('services-editor.index');

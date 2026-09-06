@@ -22,6 +22,7 @@ class MailCampaignTest extends TestCase
 
         $response = $this->actingAs($admin)->post(route('mail.send'), [
             'email' => 'student@example.com',
+            'mail_type' => 'promotional',
             'campaign' => $campaign,
         ]);
 
@@ -32,6 +33,7 @@ class MailCampaignTest extends TestCase
         Http::assertSent(fn ($request) =>
             str_ends_with($request->url(), '/api/admin/mail/send')
             && $request['email'] === 'student@example.com'
+            && $request['mail_type'] === 'promotional'
             && $request['campaign'] === $campaign
         );
     }
@@ -49,6 +51,7 @@ class MailCampaignTest extends TestCase
         $this->actingAs($admin)
             ->post(route('mail.send'), [
                 'email' => 'student@example.com',
+                'mail_type' => 'promotional',
                 'campaign' => $campaign,
             ])
             ->assertSessionHasErrors([
@@ -60,6 +63,32 @@ class MailCampaignTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_admin_can_send_direct_service_mail_without_promotional_fields(): void
+    {
+        Http::fake([
+            '*/api/admin/mail/send' => Http::response(['message' => 'Email sent successfully.']),
+        ]);
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $campaign = $this->campaign();
+        unset($campaign['offer_label'], $campaign['promo_code']);
+
+        $this->actingAs($admin)
+            ->post(route('mail.send'), [
+                'email' => 'student@example.com',
+                'mail_type' => 'direct',
+                'campaign' => $campaign,
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success', 'Direct email sent to student@example.com');
+
+        Http::assertSent(fn ($request) =>
+            $request['mail_type'] === 'direct'
+            && ! isset($request['campaign']['offer_label'])
+            && ! isset($request['campaign']['promo_code'])
+        );
+    }
+
     public function test_non_campaign_roles_cannot_send_mail(): void
     {
         Http::fake();
@@ -69,6 +98,7 @@ class MailCampaignTest extends TestCase
         $this->actingAs($writer)
             ->post(route('mail.send'), [
                 'email' => 'student@example.com',
+                'mail_type' => 'promotional',
                 'campaign' => $this->campaign(),
             ])
             ->assertForbidden();

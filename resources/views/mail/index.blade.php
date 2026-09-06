@@ -3,7 +3,7 @@
 @section('heading', 'Smart Mail')
 
 @section('content')
-<div x-data="mailComposer(@js($recipients), @js(old('email', '')), @js($campaign))" class="mx-auto max-w-6xl">
+<div x-data="mailComposer(@js($recipients), @js(old('email', '')), @js($campaign), @js($mailType), @js($drafts))" class="mx-auto max-w-6xl">
     <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="eyebrow">Customer outreach</p>
@@ -13,6 +13,29 @@
         <div class="flex items-center gap-2 text-xs text-zinc-500">
             <span class="size-2 rounded-full" :class="qualityScore >= 85 ? 'bg-emerald-500' : 'bg-amber-500'"></span>
             <span x-text="qualityScore + '% campaign quality'"></span>
+        </div>
+    </div>
+
+    <div class="card mb-5 p-4" x-show="drafts.length" x-cloak>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent-content">
+                <x-icon name="document" class="size-4" />
+            </div>
+            <div class="min-w-0 sm:w-48">
+                <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Saved drafts</p>
+                <p class="text-xs text-zinc-500" x-text="drafts.length + (drafts.length === 1 ? ' reusable draft' : ' reusable drafts')"></p>
+            </div>
+            <select x-model="selectedDraftId" @change="loadSelectedDraft" class="field flex-1 py-2">
+                <option value="">Choose a saved draft…</option>
+                <template x-for="draft in drafts" :key="draft.id">
+                    <option :value="String(draft.id)" x-text="draft.name + ' · ' + (draft.mail_type === 'direct' ? 'Primary-intent' : 'Promotional') + ' · ' + draft.updated_at"></option>
+                </template>
+            </select>
+            <form x-show="selectedDraft" :action="selectedDraft?.delete_url" method="POST" @submit="return confirm('Delete this saved draft?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger px-3" aria-label="Delete selected draft"><x-icon name="trash" class="size-4" /></button>
+            </form>
         </div>
     </div>
 
@@ -29,6 +52,24 @@
 
                 <form action="{{ route('mail.send') }}" method="POST" class="mt-5" @submit="submitting = true">
                     @csrf
+                    <fieldset class="mb-5">
+                        <legend class="label">Message type</legend>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <label class="cursor-pointer rounded-xl border p-3.5 transition" :class="mailType === 'promotional' ? 'border-accent bg-accent/5 ring-2 ring-accent/10' : 'border-zinc-200 dark:border-zinc-700'">
+                                <span class="flex items-start gap-3">
+                                    <input type="radio" name="mail_type" value="promotional" x-model="mailType" @change="setMailType('promotional')" class="mt-1 text-accent focus:ring-accent/30">
+                                    <span><span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-200">Promotional</span><span class="mt-0.5 block text-xs leading-5 text-zinc-500">Offers and marketing. Includes unsubscribe controls.</span></span>
+                                </span>
+                            </label>
+                            <label class="cursor-pointer rounded-xl border p-3.5 transition" :class="mailType === 'direct' ? 'border-blue-500 bg-blue-500/5 ring-2 ring-blue-500/10' : 'border-zinc-200 dark:border-zinc-700'">
+                                <span class="flex items-start gap-3">
+                                    <input type="radio" name="mail_type" value="direct" x-model="mailType" @change="setMailType('direct')" class="mt-1 text-blue-600 focus:ring-blue-500/30">
+                                    <span><span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-200">Primary-intent / service</span><span class="mt-0.5 block text-xs leading-5 text-zinc-500">For requested or account communication. Gmail makes the final inbox decision.</span></span>
+                                </span>
+                            </label>
+                        </div>
+                    </fieldset>
+
                     <label for="mail-email" class="label">Recipient email</label>
                     <div class="relative">
                         <x-icon name="envelope" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
@@ -72,7 +113,7 @@
                         </div>
 
                         <div class="mt-4 flex gap-2 overflow-x-auto pb-1">
-                            <template x-for="template in templates" :key="template.id">
+                            <template x-for="template in visibleTemplates" :key="template.id">
                                 <button type="button" @click="applyTemplate(template)"
                                         class="shrink-0 rounded-lg border px-3 py-2 text-xs font-medium transition"
                                         :class="activeTemplate === template.id ? 'border-accent bg-accent/10 text-accent-content' : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'"
@@ -111,14 +152,14 @@
                                 <p class="mt-1 text-[10px] text-zinc-400">Plain text only. Line breaks are preserved safely.</p>
                             </div>
 
-                            <div class="grid gap-4 sm:grid-cols-2">
+                            <div x-show="mailType === 'promotional'" x-cloak class="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label for="campaign-offer" class="label">Offer label</label>
-                                    <input id="campaign-offer" name="campaign[offer_label]" x-model="campaign.offer_label" required maxlength="60" class="field">
+                                    <input id="campaign-offer" name="campaign[offer_label]" x-model="campaign.offer_label" :required="mailType === 'promotional'" maxlength="60" class="field">
                                 </div>
                                 <div>
                                     <label for="campaign-code" class="label">Promo code</label>
-                                    <input id="campaign-code" name="campaign[promo_code]" x-model="campaign.promo_code" maxlength="32" pattern="[A-Za-z0-9_-]+" class="field font-mono uppercase" placeholder="Optional">
+                                    <input id="campaign-code" name="campaign[promo_code]" x-model="campaign.promo_code" :disabled="mailType === 'direct'" maxlength="32" pattern="[A-Za-z0-9_-]+" class="field font-mono uppercase" placeholder="Optional">
                                 </div>
                             </div>
 
@@ -140,15 +181,23 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 flex flex-col-reverse gap-3 border-t border-zinc-100 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800">
-                        <p class="flex items-center gap-1.5 text-xs text-zinc-400">
+                    <div class="mt-6 border-t border-zinc-100 pt-5 dark:border-zinc-800">
+                        <div class="mb-4 flex flex-col gap-2 sm:flex-row">
+                            <input name="draft_name" x-model="draftName" maxlength="100" class="field flex-1 py-2" placeholder="Draft name, e.g. September offer">
+                            <button type="submit" formaction="{{ route('mail.drafts.save') }}" formnovalidate :disabled="!draftName.trim() || !contentReady || submitting" class="btn btn-secondary shrink-0">
+                                <x-icon name="document" class="size-4" /> Save draft
+                            </button>
+                        </div>
+                        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <p class="flex items-center gap-1.5 text-xs text-zinc-400">
                             <x-icon name="shield" class="size-3.5" />
-                            One recipient per send prevents accidental blasts.
-                        </p>
-                        <button type="submit" :disabled="!readyToSend || submitting" class="btn btn-primary min-w-36">
-                            <x-icon name="envelope" class="size-4" />
-                            <span x-text="submitting ? 'Sending…' : 'Send promotion'"></span>
-                        </button>
+                            <span x-text="mailType === 'promotional' ? 'Includes unsubscribe and suppression checks.' : 'Use only for requested or service-related messages.'"></span>
+                            </p>
+                            <button type="submit" :disabled="!readyToSend || submitting" class="btn btn-primary min-w-36">
+                                <x-icon name="envelope" class="size-4" />
+                                <span x-text="submitting ? 'Sending…' : (mailType === 'promotional' ? 'Send promotion' : 'Send direct mail')"></span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -222,7 +271,7 @@
                             <p class="mt-6 text-xs font-medium text-zinc-400">A MESSAGE FOR YOU</p>
                             <h3 class="mt-1 text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100" x-text="campaign.headline || 'Your headline'"></h3>
                             <p class="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-500" x-text="campaign.message || 'Your campaign message will appear here.'"></p>
-                            <div class="mt-5 rounded-lg border border-dashed bg-zinc-50 px-4 py-3 text-center dark:bg-zinc-800/50" :style="`border-color: ${campaign.accent_color}`">
+                            <div x-show="mailType === 'promotional'" x-cloak class="mt-5 rounded-lg border border-dashed bg-zinc-50 px-4 py-3 text-center dark:bg-zinc-800/50" :style="`border-color: ${campaign.accent_color}`">
                                 <p class="text-base font-bold" :style="`color: ${campaign.accent_color}`" x-text="campaign.offer_label || 'Special offer'"></p>
                                 <p x-show="campaign.promo_code" class="mt-1 text-xs text-zinc-500">Use code <strong class="font-mono text-zinc-800 dark:text-zinc-200" x-text="campaign.promo_code"></strong></p>
                             </div>
@@ -233,7 +282,7 @@
 
                 <div class="space-y-3 px-5 py-4 text-xs">
                     <div class="flex justify-between gap-4"><span class="text-zinc-400">To</span><span class="truncate text-right font-medium text-zinc-700 dark:text-zinc-300" x-text="email || 'Choose a recipient'"></span></div>
-                    <div class="flex justify-between gap-4"><span class="text-zinc-400">Offer</span><span class="font-medium text-zinc-700 dark:text-zinc-300" x-text="campaign.offer_label || 'None'"></span></div>
+                    <div class="flex justify-between gap-4"><span class="text-zinc-400">Type</span><span class="font-medium text-zinc-700 dark:text-zinc-300" x-text="mailType === 'promotional' ? 'Promotional' : 'Primary-intent / service'"></span></div>
                     <div class="flex justify-between gap-4"><span class="text-zinc-400">Delivery</span><span class="font-medium text-zinc-700 dark:text-zinc-300">Immediately</span></div>
                 </div>
             </div>
@@ -242,17 +291,21 @@
 </div>
 
 <script>
-    function mailComposer(recipients, initialEmail, campaign) {
+    function mailComposer(recipients, initialEmail, campaign, initialMailType, drafts) {
         return {
             recipients,
             email: initialEmail,
             campaign,
+            mailType: initialMailType,
+            drafts,
             search: '',
             submitting: false,
-            activeTemplate: 'promotion',
+            draftName: '',
+            selectedDraftId: '',
+            activeTemplate: initialMailType === 'promotional' ? 'promotion' : 'service-checkin',
             templates: [
                 {
-                    id: 'promotion', name: '20% promotion',
+                    id: 'promotion', name: '20% promotion', type: 'promotional',
                     subject: 'Special Offer — Get 20% Off Assignment Help',
                     preheader: 'Expert academic support is now 20% more affordable.',
                     headline: 'Save 20% on your next order',
@@ -260,7 +313,7 @@
                     offer_label: '20% OFF', promo_code: 'WELCOME20', cta_text: 'Claim your discount', accent_color: '#e63946'
                 },
                 {
-                    id: 'deadline', name: 'Deadline rescue',
+                    id: 'deadline', name: 'Deadline rescue', type: 'promotional',
                     subject: 'Deadline approaching? Expert help is ready',
                     preheader: 'Get matched with an expert and take the pressure off your deadline.',
                     headline: 'Your deadline does not have to be stressful',
@@ -268,7 +321,7 @@
                     offer_label: 'Fast expert matching', promo_code: '', cta_text: 'Get urgent help', accent_color: '#2563eb'
                 },
                 {
-                    id: 'winback', name: 'Win-back',
+                    id: 'winback', name: 'Win-back', type: 'promotional',
                     subject: 'We saved something special for you',
                     preheader: 'Come back and save on your next academic project.',
                     headline: 'Ready for your next success?',
@@ -276,25 +329,52 @@
                     offer_label: 'Returning customer offer', promo_code: 'COMEBACK15', cta_text: 'Start a new order', accent_color: '#7c3aed'
                 },
                 {
-                    id: 'welcome', name: 'New customer',
+                    id: 'welcome', name: 'New customer', type: 'promotional',
                     subject: 'Welcome — expert assignment support starts here',
                     preheader: 'Meet the academic support team available whenever you need it.',
                     headline: 'Welcome to easier assignment help',
                     message: 'From essays and research to programming and mathematics, our subject experts are available around the clock to help you move forward confidently.',
                     offer_label: 'First-order saving', promo_code: 'WELCOME20', cta_text: 'Place your first order', accent_color: '#059669'
+                },
+                {
+                    id: 'service-checkin', name: 'Service check-in', type: 'direct',
+                    subject: 'How can we help with your assignment?',
+                    preheader: 'Our support team is available if you need assistance.',
+                    headline: 'We are here to help',
+                    message: 'This is a quick service check-in. If you have questions about your assignment requirements, deadline, or account, reply to this email and our support team will assist you.',
+                    offer_label: '', promo_code: '', cta_text: 'Contact support', accent_color: '#2563eb'
+                },
+                {
+                    id: 'order-followup', name: 'Order follow-up', type: 'direct',
+                    subject: 'A quick follow-up about your assignment',
+                    preheader: 'Please review your assignment details when convenient.',
+                    headline: 'Your assignment support update',
+                    message: 'We are following up regarding your assignment support. Please review the details and contact our team if anything needs clarification.',
+                    offer_label: '', promo_code: '', cta_text: 'Review your account', accent_color: '#059669'
                 }
             ],
+
+            get visibleTemplates() {
+                return this.templates.filter(template => template.type === this.mailType);
+            },
+
+            get selectedDraft() {
+                return this.drafts.find(draft => String(draft.id) === this.selectedDraftId) || null;
+            },
 
             get validEmail() {
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
             },
 
             get readyToSend() {
-                return this.validEmail
-                    && this.campaign.subject.trim()
+                return this.validEmail && this.contentReady;
+            },
+
+            get contentReady() {
+                return this.campaign.subject.trim()
                     && this.campaign.headline.trim()
                     && this.campaign.message.trim()
-                    && this.campaign.offer_label.trim()
+                    && (this.mailType !== 'promotional' || this.campaign.offer_label.trim())
                     && this.campaign.cta_text.trim()
                     && /^https?:\/\//i.test(this.campaign.cta_url);
             },
@@ -306,7 +386,7 @@
                 if (this.campaign.headline.length >= 15) score += 10;
                 if (this.campaign.message.length >= 80 && this.campaign.message.length <= 600) score += 10;
                 if (this.campaign.cta_text.length >= 4) score += 10;
-                if (this.campaign.promo_code) score += 5;
+                if (this.mailType === 'promotional' && this.campaign.promo_code) score += 5;
                 return Math.min(score, 100);
             },
 
@@ -341,10 +421,26 @@
 
             applyCorrection() { this.email = this.suggestedEmail; },
 
+            setMailType(type) {
+                this.mailType = type;
+                const template = this.templates.find(item => item.type === type);
+                if (template) this.applyTemplate(template);
+            },
+
             applyTemplate(template) {
                 const destination = this.campaign.cta_url;
-                this.campaign = { ...this.campaign, ...template, cta_url: destination };
+                const { id, name, type, ...content } = template;
+                this.campaign = { ...this.campaign, ...content, cta_url: destination };
+                this.mailType = type;
                 this.activeTemplate = template.id;
+            },
+
+            loadSelectedDraft() {
+                if (!this.selectedDraft) return;
+                this.campaign = { ...this.selectedDraft.campaign };
+                this.mailType = this.selectedDraft.mail_type;
+                this.draftName = this.selectedDraft.name;
+                this.activeTemplate = null;
             },
 
             initials(name) {
