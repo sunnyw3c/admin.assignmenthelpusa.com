@@ -10,6 +10,8 @@ use App\Services\CampaignSchedulerService;
 use App\Services\ContactManagerService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class MailController extends Controller
 {
@@ -130,13 +132,14 @@ class MailController extends Controller
             $this->campaignRules()
         ));
 
-        $result = $this->api->sendPromotionalEmail(
-            $validated['email'],
-            $validated['campaign'],
-            $validated['mail_type']
-        );
+        try {
+            Mail::to($validated['email'])->send(
+                new \App\Mail\CampaignEmail(
+                    $validated['campaign'],
+                    $validated['mail_type']
+                )
+            );
 
-        if ($result['status'] >= 200 && $result['status'] < 300) {
             // Record contact & log
             $this->contactManager->addContact($validated['email']);
             \App\Models\CampaignDeliveryLog::create([
@@ -147,11 +150,11 @@ class MailController extends Controller
             ]);
 
             $label = $validated['mail_type'] === 'direct' ? 'Direct email' : 'Promotional email';
-            return back()->with('success', $label . ' sent to ' . $request->email);
+            return back()->with('success', $label . ' sent successfully to ' . $validated['email']);
+        } catch (\Throwable $e) {
+            Log::error('Failed to send email: ' . $e->getMessage(), ['exception' => $e]);
+            return back()->withInput()->with('error', 'Failed to send email: ' . $e->getMessage());
         }
-
-        $error = $result['data']['message'] ?? 'Failed to send email. Please try again.';
-        return back()->withInput()->with('error', $error);
     }
 
     /**
