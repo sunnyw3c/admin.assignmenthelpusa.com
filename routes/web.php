@@ -57,9 +57,15 @@ Route::middleware('admin.auth')->group(function () {
     Route::post('/cms/pages', [CmsController::class, 'createPage'])->name('cms.create-page');
     Route::post('/cms/pages/{slug}/delete', [CmsController::class, 'deletePage'])->name('cms.delete-page');
 
-    // Mail
+    // Mail & Campaign Marketing
     Route::get('/mail', [MailController::class, 'index'])->name('mail.index');
     Route::post('/mail', [MailController::class, 'send'])->name('mail.send');
+    Route::post('/mail/bulk-schedule', [MailController::class, 'bulkSchedule'])->name('mail.bulk-schedule');
+    Route::post('/mail/contacts', [MailController::class, 'storeContact'])->name('mail.contacts.store');
+    Route::post('/mail/contacts/import', [MailController::class, 'importContacts'])->name('mail.contacts.import');
+    Route::delete('/mail/contacts/{contact}', [MailController::class, 'deleteContact'])->name('mail.contacts.delete');
+    Route::post('/mail/queue/{email}/cancel', [MailController::class, 'cancelScheduled'])->name('mail.queue.cancel');
+    Route::post('/mail/queue/{email}/retry', [MailController::class, 'retryScheduled'])->name('mail.queue.retry');
     Route::post('/mail/drafts', [MailController::class, 'saveDraft'])->name('mail.drafts.save');
     Route::delete('/mail/drafts/{draft}', [MailController::class, 'deleteDraft'])->name('mail.drafts.delete');
 

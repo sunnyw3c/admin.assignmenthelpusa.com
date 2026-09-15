@@ -2,26 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AdminApiService;
 use App\Models\MailDraft;
+use App\Models\MarketingContact;
+use App\Models\ScheduledCampaignEmail;
+use App\Services\AdminApiService;
+use App\Services\CampaignSchedulerService;
+use App\Services\ContactManagerService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MailController extends Controller
 {
     private AdminApiService $api;
+    private ContactManagerService $contactManager;
+    private CampaignSchedulerService $scheduler;
 
     public function __construct()
     {
         $this->api = new AdminApiService();
+        $this->contactManager = new ContactManagerService();
+        $this->scheduler = new CampaignSchedulerService();
     }
 
     public function index()
     {
         $this->authorizeMail();
 
+        // 1. Fetch student users from Main API
         $users = $this->api->getUsers(['role' => 'student']);
-
         $recipients = collect($users['data'] ?? [])
             ->filter(fn (array $user) => filter_var($user['email'] ?? null, FILTER_VALIDATE_EMAIL))
             ->map(function (array $user) {
@@ -29,8 +37,6 @@ class MailController extends Controller
                 $joined = isset($user['created_at']) ? Carbon::parse($user['created_at']) : null;
                 $daysSinceJoining = $joined ? (int) $joined->diffInDays(now()) : null;
 
-                // A transparent engagement score keeps the most useful leads at
-                // the top without pretending to be a predictive black box.
                 $score = 25 + min($orders * 12, 60);
                 if ($daysSinceJoining !== null && $daysSinceJoining <= 30) {
                     $score += 15;
@@ -58,10 +64,15 @@ class MailController extends Controller
             ->values()
             ->all();
 
+        // 2. Saved Admin Contacts Directory
+        $savedContacts = $this->contactManager->getContactsSummary();
+
+        // 3. Campaign defaults & drafts
         $campaign = collect(array_replace($this->campaignDefaults(), old('campaign', [])))
             ->map(fn ($value) => is_string($value) ? $value : '')
             ->all();
         $mailType = old('mail_type', 'promotional');
+
         $drafts = MailDraft::query()
             ->where('user_id', auth()->id())
             ->latest('updated_at')
@@ -82,32 +93,216 @@ class MailController extends Controller
             })
             ->values();
 
-        return view('mail.index', compact('recipients', 'campaign', 'mailType', 'drafts'));
+        // 4. Scheduled queue items & summary stats
+        $queueItems = ScheduledCampaignEmail::query()
+            ->latest('scheduled_at')
+            ->take(60)
+            ->get();
+
+        $queueStats = [
+            'pending' => ScheduledCampaignEmail::where('status', 'pending')->count(),
+            'deferred' => ScheduledCampaignEmail::where('status', 'deferred')->count(),
+            'sent' => ScheduledCampaignEmail::where('status', 'sent')->count(),
+            'failed' => ScheduledCampaignEmail::where('status', 'failed')->count(),
+            'total_contacts' => $savedContacts->count(),
+        ];
+
+        return view('mail.index', compact(
+            'recipients',
+            'savedContacts',
+            'campaign',
+            'mailType',
+            'drafts',
+            'queueItems',
+            'queueStats'
+        ));
     }
 
+    /**
+     * Single Instant Send
+     */
     public function send(Request $request)
     {
         $this->authorizeMail();
 
         $validated = $request->validate(array_merge(
             ['email' => 'required|email|max:255'],
-            $this->campaignRules(),
+            $this->campaignRules()
         ));
 
         $result = $this->api->sendPromotionalEmail(
             $validated['email'],
             $validated['campaign'],
-            $validated['mail_type'],
+            $validated['mail_type']
         );
 
         if ($result['status'] >= 200 && $result['status'] < 300) {
-            $label = $validated['mail_type'] === 'direct' ? 'Direct email' : 'Promotional email';
+            // Record contact & log
+            $this->contactManager->addContact($validated['email']);
+            \App\Models\CampaignDeliveryLog::create([
+                'recipient_email' => $validated['email'],
+                'subject' => $validated['campaign']['subject'],
+                'mail_type' => $validated['mail_type'],
+                'sent_at' => now(),
+            ]);
 
+            $label = $validated['mail_type'] === 'direct' ? 'Direct email' : 'Promotional email';
             return back()->with('success', $label . ' sent to ' . $request->email);
         }
 
         $error = $result['data']['message'] ?? 'Failed to send email. Please try again.';
         return back()->withInput()->with('error', $error);
+    }
+
+    /**
+     * Bulk Schedule with 2-minute throttling and 7-day cooldown auto-deferral
+     */
+    public function bulkSchedule(Request $request)
+    {
+        $this->authorizeMail();
+
+        $validated = $request->validate(array_merge(
+            [
+                'recipient_source' => 'required|in:manual,contacts,all_students',
+                'bulk_emails' => 'nullable|string|max:100000',
+                'selected_contacts' => 'nullable|array',
+                'selected_contacts.*' => 'integer|exists:marketing_contacts,id',
+            ],
+            $this->campaignRules()
+        ));
+
+        $recipients = [];
+
+        if ($validated['recipient_source'] === 'manual') {
+            $lines = preg_split('/[\r\n,]+/', (string) ($validated['bulk_emails'] ?? ''));
+            foreach ($lines as $line) {
+                $email = strtolower(trim($line));
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $recipients[] = ['email' => $email];
+                }
+            }
+        } elseif ($validated['recipient_source'] === 'contacts') {
+            $contacts = MarketingContact::whereIn('id', $validated['selected_contacts'] ?? [])
+                ->where('is_subscribed', true)
+                ->get();
+            foreach ($contacts as $c) {
+                $recipients[] = ['email' => $c->email, 'name' => $c->name];
+            }
+        } elseif ($validated['recipient_source'] === 'all_students') {
+            $users = $this->api->getUsers(['role' => 'student']);
+            foreach ($users['data'] ?? [] as $u) {
+                if (filter_var($u['email'] ?? null, FILTER_VALIDATE_EMAIL)) {
+                    $recipients[] = ['email' => $u['email'], 'name' => $u['name'] ?? null];
+                }
+            }
+        }
+
+        if (empty($recipients)) {
+            return back()->withInput()->with('error', 'No valid email addresses found in selection.');
+        }
+
+        $result = $this->scheduler->scheduleBatch(
+            $recipients,
+            $validated['campaign'],
+            $validated['mail_type'],
+            auth()->id()
+        );
+
+        $msg = "Scheduled {$result['total']} emails. ({$result['queued_this_week']} queued for this week every 2 mins after 6 PM, {$result['deferred_next_week']} deferred to next week due to 7-day cooldown).";
+
+        return back()->with('success', $msg);
+    }
+
+    /**
+     * Add single email ID on admin side
+     */
+    public function storeContact(Request $request)
+    {
+        $this->authorizeMail();
+
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+            'name' => 'nullable|string|max:120',
+            'tags' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        $this->contactManager->addContact(
+            $validated['email'],
+            $validated['name'] ?? null,
+            $validated['tags'] ?? null,
+            $validated['notes'] ?? null
+        );
+
+        return back()->with('success', "Email ID {$validated['email']} added to contacts.");
+    }
+
+    /**
+     * Bulk import email IDs (Paste or CSV) on admin side
+     */
+    public function importContacts(Request $request)
+    {
+        $this->authorizeMail();
+
+        $request->validate([
+            'contacts_data' => 'nullable|string|max:200000',
+            'contacts_file' => 'nullable|file|mimes:csv,txt|max:5120',
+            'tags' => 'nullable|string|max:255',
+        ]);
+
+        $rawInput = (string) $request->input('contacts_data', '');
+
+        if ($request->hasFile('contacts_file')) {
+            $rawInput .= "\n" . file_get_contents($request->file('contacts_file')->getRealPath());
+        }
+
+        if (empty(trim($rawInput))) {
+            return back()->with('error', 'Please provide email data or upload a CSV/TXT file.');
+        }
+
+        $res = $this->contactManager->importBulkContacts($rawInput, $request->input('tags'));
+
+        return back()->with('success', "Successfully imported {$res['imported']} contacts (Skipped: {$res['skipped']}).");
+    }
+
+    /**
+     * Delete contact
+     */
+    public function deleteContact(MarketingContact $contact)
+    {
+        $this->authorizeMail();
+        $contact->delete();
+
+        return back()->with('success', 'Contact removed from list.');
+    }
+
+    /**
+     * Cancel queued email
+     */
+    public function cancelScheduled(ScheduledCampaignEmail $email)
+    {
+        $this->authorizeMail();
+        if (in_array($email->status, ['pending', 'deferred'], true)) {
+            $email->update(['status' => 'cancelled']);
+            return back()->with('success', "Cancelled scheduled email to {$email->recipient_email}.");
+        }
+
+        return back()->with('error', 'Cannot cancel an email that is already processed.');
+    }
+
+    /**
+     * Retry failed email
+     */
+    public function retryScheduled(ScheduledCampaignEmail $email)
+    {
+        $this->authorizeMail();
+        $email->update([
+            'status' => 'pending',
+            'scheduled_at' => now(),
+            'error_message' => null,
+        ]);
+
+        return back()->with('success', "Queued {$email->recipient_email} for immediate retry.");
     }
 
     public function saveDraft(Request $request)
@@ -116,7 +311,7 @@ class MailController extends Controller
 
         $validated = $request->validate(array_merge(
             ['draft_name' => 'required|string|max:100'],
-            $this->campaignRules(),
+            $this->campaignRules()
         ));
 
         MailDraft::updateOrCreate(
@@ -127,7 +322,7 @@ class MailController extends Controller
             [
                 'mail_type' => $validated['mail_type'],
                 'content' => $validated['campaign'],
-            ],
+            ]
         );
 
         return back()->with('success', 'Mail draft saved.');
@@ -164,8 +359,8 @@ class MailController extends Controller
             'mail_type' => 'required|in:promotional,direct',
             'campaign.subject' => ['required', 'string', 'max:150', 'not_regex:/[\r\n]/'],
             'campaign.preheader' => 'nullable|string|max:180',
-            'campaign.headline' => 'required|string|max:140',
-            'campaign.message' => 'required|string|max:2000',
+            'campaign.headline' => 'required', 'string', 'max:140',
+            'campaign.message' => 'required', 'string', 'max:2000',
             'campaign.offer_label' => 'nullable|required_if:mail_type,promotional|string|max:60',
             'campaign.promo_code' => ['nullable', 'prohibited_if:mail_type,direct', 'string', 'max:32', 'regex:/^[A-Za-z0-9_-]+$/'],
             'campaign.cta_text' => 'required|string|max:60',
@@ -178,7 +373,7 @@ class MailController extends Controller
     {
         abort_unless(
             auth()->check() && in_array(auth()->user()->role, ['admin', 'manager'], true),
-            403,
+            403
         );
     }
 }
